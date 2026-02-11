@@ -1,12 +1,12 @@
 # Filtro FIR Sequencial (Arquitetura MAC) project
 
-> Projeto Orientado 1 (SD192) do Programa de formação em Micro-eletrônica e Sistemas Embarcados CI DIGITAL - T2/25, realizado pela instituição INATEL, Santa Rita do Sapucaí / MG. 
+> Projeto Orientado 1 (SD192) do Programa de formação em Micro-eletrônica e Sistemas Embarcados [CI DIGITAL]() - T2/25, realizado pela instituição [INATEL](), Santa Rita do Sapucaí / MG. 
 
-# 1 Objetivo
+## 1 Objetivo
 
-Implementar um filtro digital de Resposta ao Impulso Finita (FIR) utilizando uma arquitetura de hardware compartilhado. O objetivo é otimizar o uso de área da FPGA através de uma unidade de Multiplicação e Acúmulo (MAC) única, processando as amostras de forma sequencial no tempo.
+- [ ] Implementar um filtro digital de Resposta ao Impulso Finita (FIR) utilizando uma arquitetura de hardware compartilhado. O objetivo é otimizar o uso de área da FPGA através de uma unidade de Multiplicação e Acúmulo (MAC) única, processando as amostras de forma sequencial no tempo.
 
-# 2	Descrição do Desafio Técnico
+## 2	Descrição do Desafio Técnico
 
 Diferente de uma implementação paralela direta, a versão sequencial exige o domínio de três pilares da microeletrônica:
 
@@ -16,13 +16,13 @@ Diferente de uma implementação paralela direta, a versão sequencial exige o d
 
 - **Sincronismo de Memória**: Gerenciamento de uma linha de atraso (Shift Register) para amostras e uma ROM para coeficientes.
 
-# 3	Detalhamento Técnico e Requisitos
+## 3	Detalhamento Técnico e Requisitos
 
 Para a validação do projeto, o cumprimento dos seguintes requisitos arquiteturais é obrigatório:
 
-- **Arquitetura MAC Única (Hardware Sharing)**: É estritamente proibido o uso de múltiplos multiplicadores em paralelo. O projeto deve utilizar uma única unidade de Multiplicação e Acúmulo. O cálculo de cada saída y[n] deve ocorrer de forma iterativa, consumindo exatamente K ciclos de clock de processamento (onde K é o número de taps).
+- [ ] **Arquitetura MAC Única (Hardware Sharing)**: É estritamente proibido o uso de múltiplos multiplicadores em paralelo. O projeto deve utilizar uma única unidade de Multiplicação e Acúmulo. O cálculo de cada saída y[n] deve ocorrer de forma iterativa, consumindo exatamente K ciclos de clock de processamento (onde K é o número de taps).
 
-## Parâmetros de Projeto
+### Parâmetros de Projeto
 
 - [ ] **Ordem do Filtro**: Mínimo de 8 taps. O hardware deve ser parametrizado para permitir a expansão da ordem do filtro sem alteração na lógica da FSM.
 
@@ -40,20 +40,20 @@ Para a validação do projeto, o cumprimento dos seguintes requisitos arquitetur
 
 - [ ] **Finalização**: Estabilização da saída y[n] e ativação do sinal data_valid por apenas um ciclo de clock, indicando que o processamento daquela amostra foi concluído.
 
-# 4	Requisitos de Robustez
+## 4	Requisitos de Robustez
 
 - [ ] **Tratamento de Overflow**: O acumulador deve ser projetado com bits de guarda (guard bits) suficientes para garantir que o somatório dos produtos não sature ou cause erro de sinal antes da saída final.
 
 - [ ] **Validação Numérica**: O grupo deve apresentar um script (*Python, MATLAB ou Excel*) que execute o mesmo filtro. Os resultados da simulação RTL devem ser
 idênticos aos do script para comprovar a correta implementação da aritmética.
 
-# 5	Entregáveis Detalhados
+## 5	Entregáveis Detalhados
 
-1. **Código RTL Sequencial**: Implementação modular separando a Unidade de Controle (FSM) da Unidade de Dados (Multiplicador e Acumulador).
+- [ ] **Código RTL Sequencial**: Implementação modular separando a Unidade de Controle (FSM) da Unidade de Dados (Multiplicador e Acumulador).
 
-2. **Diagrama de Estados**: Representação visual da FSM de controle, detalhando as transições de ciclo.
+- [ ] **Diagrama de Estados**: Representação visual da FSM de controle, detalhando as transições de ciclo.
 
-3. **Testbench com Injeção de Dados**: Uso obrigatório das diretivas $readmemb ou $readmemh para carregar vetores de teste (amostras) e coeficientes a
+- [ ] **Testbench com Injeção de Dados**: Uso obrigatório das diretivas $readmemb ou $readmemh para carregar vetores de teste (amostras) e coeficientes a
 partir de arquivos externos.
 
 4. **Relatório de Análise Teórica**: Comparação gráfica entre o sinal de saída esperado e o gerado pelo hardware, incluindo uma breve análise sobre a resposta em frequência implementada.
@@ -68,14 +68,22 @@ partir de arquivos externos.
  
 # ORIENTADORES
 
-<Inserir orientadores> 
+|ORIENTADOR											|FORMAÇÃO									|
+|:---												|:---										|
+|[Elivander Judas Tadeu Pereira]()					|Doutor em Engenharia de Telecomunicações	|
+|[Felipe Gustavo de Freitas Rocha]()				|Mestre em Engenharia de Telecomunicações	|
+|[Letícia Carneiro de Souza]() 						|Doutora em Telecomunicações				|
 
 # REFERENCES
 
 [1] []();
+
 [2] []();
+
 [3] []();
+
 [4] []();
+
 [5] []();
 
 # COLABORADORS
