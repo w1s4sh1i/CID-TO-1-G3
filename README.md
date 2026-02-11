@@ -57,6 +57,14 @@ idênticos aos do script para comprovar a correta implementação da aritmética
 partir de arquivos externos.
 
 4. **Relatório de Análise Teórica**: Comparação gráfica entre o sinal de saída esperado e o gerado pelo hardware, incluindo uma breve análise sobre a resposta em frequência implementada.
+
+# ARQUIVOS DE SUPORTE
+
+1. Relatório Final: []()
+
+2. Github: []()
+
+3. Artigo: []()
  
 # ORIENTADORES
 
