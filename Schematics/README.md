@@ -1,4 +1,4 @@
-# RISC-V 32-bits (Schematics)
+# Filtro FIR Sequencial (Arquitetura MAC) - Schematics
 
 > Description
 

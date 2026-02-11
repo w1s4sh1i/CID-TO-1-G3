@@ -1,4 +1,11 @@
-# RISC-V 32-bits (Modules)
+# Filtro FIR Sequencial (Arquitetura MAC) - Modules
 
 > Description
+
+## Design 
+
+
+## Testing
+
+
 

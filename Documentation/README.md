@@ -1,4 +1,4 @@
-# RISC-V 32-bits (Documentation)
+# Filtro FIR Sequencial (Arquitetura MAC) - Documentation
 
 > Description
 
