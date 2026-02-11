@@ -10,11 +10,11 @@
 
 Diferente de uma implementação paralela direta, a versão sequencial exige o domínio de três pilares da microeletrônica:
 
-- **Gestão de Fluxo de Dados**: Uso de uma Máquina de Estados (FSM) para coordenar o reuso do multiplicador.
+- [ ] **Gestão de Fluxo de Dados**: Uso de uma Máquina de Estados (FSM) para coordenar o reuso do multiplicador.
 
-- **Aritmética de Ponto Fixo**: Controle de crescimento de bits, truncamento e prevenção de overflow.
+- [ ] **Aritmética de Ponto Fixo**: Controle de crescimento de bits, truncamento e prevenção de overflow.
 
-- **Sincronismo de Memória**: Gerenciamento de uma linha de atraso (Shift Register) para amostras e uma ROM para coeficientes.
+- [ ] **Sincronismo de Memória**: Gerenciamento de uma linha de atraso (Shift Register) para amostras e uma ROM para coeficientes.
 
 ## 3	Detalhamento Técnico e Requisitos
 
@@ -56,9 +56,9 @@ idênticos aos do script para comprovar a correta implementação da aritmética
 - [ ] **Testbench com Injeção de Dados**: Uso obrigatório das diretivas $readmemb ou $readmemh para carregar vetores de teste (amostras) e coeficientes a
 partir de arquivos externos.
 
-4. **Relatório de Análise Teórica**: Comparação gráfica entre o sinal de saída esperado e o gerado pelo hardware, incluindo uma breve análise sobre a resposta em frequência implementada.
+- [ ] **Relatório de Análise Teórica**: Comparação gráfica entre o sinal de saída esperado e o gerado pelo hardware, incluindo uma breve análise sobre a resposta em frequência implementada.
 
-# ARQUIVOS DE SUPORTE
+## ARQUIVOS DE SUPORTE
 
 1. Relatório Final: []()
 
@@ -66,7 +66,7 @@ partir de arquivos externos.
 
 3. Artigo: []()
  
-# ORIENTADORES
+## ORIENTADORES
 
 |ORIENTADOR											|FORMAÇÃO									|
 |:---												|:---										|
@@ -74,7 +74,7 @@ partir de arquivos externos.
 |[Felipe Gustavo de Freitas Rocha]()				|Mestre em Engenharia de Telecomunicações	|
 |[Letícia Carneiro de Souza]() 						|Doutora em Telecomunicações				|
 
-# REFERENCES
+## REFERENCES
 
 [1] []();
 
@@ -86,6 +86,6 @@ partir de arquivos externos.
 
 [5] []();
 
-# COLABORADORS
+## COLABORADORES
 
 - [ ] Configurar lista de colaboradores do grupo 3; 
