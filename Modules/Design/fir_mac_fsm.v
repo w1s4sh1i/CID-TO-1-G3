@@ -3,13 +3,16 @@
 
 module fir_mac_fsm #(
     parameter NUM_TAPS = 8,
-    parameter DATA_WIDTH = 8,
     parameter COEFF_WIDTH = 8,
-    parameter ACC_WIDTH = 19
+    parameter DATA_WIDTH = 8,
+    parameter ACC_WIDTH = 19 // DATA_WIDTH + COEFF_WIDTH + log2(NUM_TAPS) Guard Bits
 )(
     input wire clock,
     input wire reset,
-    input wire load_en
+    input wire load_en,
+    input wire signed [DATA_WIDTH-1:0] x_in,
+    output reg data_valid,
+    output reg signed [DATA_WIDTH-1:0] y_out
 );
 
     // Definição dos Estados do Filtro FIR
@@ -21,8 +24,22 @@ module fir_mac_fsm #(
 
     reg [2:0] state, next_state;
 
-    // Reset Assíncrono em Nível Lógico 1
-    always @(posedge clock or posedge reset) begin
+    reg signed [COEFF_WIDTH-1:0] rom [0:NUM_TAPS-1];
+
+    integer i;
+    initial begin
+        for (i = 0; i < NUM_TAPS; i = i + 1)
+            rom[i] = 0;
+    end
+
+    reg signed [DATA_WIDTH-1:0] x_reg [0:NUM_TAPS-1];
+    reg signed [ACC_WIDTH-1:0] acc_reg;
+
+    reg mac_done;
+    reg [$clog2(NUM_TAPS)-1:0] count;
+
+    // Reset Síncrono em Nível Lógico 1
+    always @(posedge clock) begin
 
         if (reset) 
             state <= IDLE;
@@ -34,13 +51,16 @@ module fir_mac_fsm #(
     // Lógica Combinacional de Próximo Estado
     always @(*) begin
 
+        next_state = state;
+
         case (state)
 
-            IDLE:
+            IDLE: begin
                 if (load_en)
                     next_state = CAPTURE;
                 else 
                     next_state = IDLE;
+            end
 
             CAPTURE:
                 next_state = SHIFT;
@@ -48,11 +68,12 @@ module fir_mac_fsm #(
             SHIFT:
                 next_state = LOOP_MAC;
 
-            LOOP_MAC:
+            LOOP_MAC: begin
                 if (mac_done)
                     next_state = DELIVER;
                 else
                     next_state = LOOP_MAC;
+            end
 
             DELIVER:
                 next_state = IDLE;
@@ -65,28 +86,54 @@ module fir_mac_fsm #(
     end
 
     // Lógica de Controle da Unidade de Dados
-    always @(posedge clock or posedge reset) begin
+    always @(posedge clock) begin
 
-        case (param)
+        if (reset) begin
             
-            IDLE:
-                // Zera Parâmetros e Aguarda Novas Entradas
+            mac_done <= 0;
+            count <= 0;
+            acc_reg <= 0;
+            data_valid <= 0;
+            y_out <= 0;
 
-            CAPTURE:
-                // Carrega a Amostra no Registrador Auxiliar
+        end else begin
 
-            SHIFT:
-                // Atualização da Linha de Atraso na Memória
+            case (state)
+            
+                IDLE: begin
+                    mac_done <= 0;
+                    count <= 0;
+                    acc_reg <= 0;
+                    data_valid <= 0;
+                    y_out <= 0;
+                end
 
-            LOOP_MAC:
-                // Ciclo Iterativo de Leitura, Multiplicação e Acúmulo
+                CAPTURE: begin
+                    // TODO: Carrega a Amostra no Registrador Auxiliar
+                end
 
-            DELIVER:
-                // Amostra Filtrada e Ativação da Saída y[n]
-                
-            default: 
+                SHIFT: begin
+                    // TODO: Atualização da Linha de Atraso na Memória
+                end
 
-        endcase
+                LOOP_MAC: begin
+                    // TODO: Ciclo Iterativo de Leitura, Multiplicação e Acúmulo
+                end
+
+                DELIVER: begin
+                    // TODO: Amostra Filtrada e Ativação da Saída y[n]
+                end
+
+                default: begin
+                    mac_done <= 0;
+                    count <= 0;
+                    acc_reg <= 0;
+                    data_valid <= 0;
+                end
+
+            endcase
+
+        end
 
     end
 
