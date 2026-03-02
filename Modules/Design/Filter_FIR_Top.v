@@ -286,3 +286,14 @@ module FIR_top #(
 endmodule
 
   
+/*********************************************
+Sequência do MAC 
+
+Ciclo	     Ação
+-----------------------------------------------
+1	        shift_en = 1 (entra x[n])
+2	        acc_clear = 1, tap_index = 0
+3 → K+2	    mac_en = 1, tap_en = 1
+Último      data_valid = 1
+
+**********************************************/
