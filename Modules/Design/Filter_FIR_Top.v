@@ -222,7 +222,6 @@ O Módulo Top é o bloco principal do projeto.
 -> É a interface externa do sistema
 
 **********************************************************************/
-
 module FIR_top #(
     parameter K  = 8,
     parameter DW = 8,
@@ -236,32 +235,53 @@ module FIR_top #(
     output wire data_valid
 );
 
-wire shift_en;
-wire mac_en;
-wire acc_clear;
-wire [$clog2(K)-1:0] tap_index;
+    // ===============================
+    // Sinais de controle
+    // ===============================
+    wire shift_en;
+    wire mac_en;
+    wire acc_clear;
+    wire tap_en;
 
-fir_control #(K) control (
-    .clk(clk),
-    .rst(rst),
-    .start(start),
-    .shift_en(shift_en),
-    .acc_clear(acc_clear),
-    .mac_en(mac_en),
-    .data_valid(data_valid),
-    .tap_index(tap_index)
-);
+    // ===============================
+    // Tap index
+    // ===============================
+    wire [$clog2(K)-1:0] tap_index;
 
-fir_datapath #(K, DW, CW) datapath (
-    .clk(clk),
-    .rst(rst),
-    .shift_en(shift_en),
-    .mac_en(mac_en),
-    .acc_clear(acc_clear),
-    .x_in(x_in),
-    .tap_index(tap_index),
-    .y_out(y_out)
-);
+    // ===============================
+    // FSM de Controle
+    // ===============================
+    fir_control #(
+        .K(K)
+    ) u_fir_control (
+        .clk        (clk),
+        .rst        (rst),
+        .start      (start),
+        .shift_en   (shift_en),
+        .tap_en     (tap_en),
+        .acc_clear  (acc_clear),
+        .mac_en     (mac_en),
+        .tap_index  (tap_index),
+        .data_valid (data_valid)
+    );
+
+    // ===============================
+    // Datapath FIR
+    // ===============================
+    FIR_datapath #(
+        .K (K),
+        .DW(DW),
+        .CW(CW)
+    ) u_fir_datapath (
+        .clk       (clk),
+        .rst       (rst),
+        .shift_en  (shift_en),
+        .mac_en    (mac_en),
+        .acc_clear (acc_clear),
+        .x_in      (x_in),
+        .tap_index (tap_index),
+        .y_out     (y_out)
+    );
 
 endmodule
 
