@@ -77,21 +77,22 @@ module FIR_datapath #(
     // ROM de coeficientes
     // ======================================================
 
-    reg signed [CW-1:0] coeff_rom [0:K-1];
+    reg signed [CW-1:0] coeff_rom;
 
-    initial begin
-        $readmemh("coeffs.mem", coeff_rom);
-    end
-
-    wire signed [CW-1:0] coeff;
-    assign coeff = coeff_rom[tap_index];
+    rom #(
+        .NUM_TAPS(K),
+        .COEFF_WIDTH(CW)
+    ) u_rom (
+        .addr(tap_index),
+        .coeff(coeff_rom)
+    );
 
     // ======================================================
     // Multiplicador
     // ======================================================
 
     wire signed [PW-1:0] product;
-    assign product = sample * coeff;
+    assign product = sample * coeff_rom;
 
     // ======================================================
     // Acumulador + ACC_MUX
