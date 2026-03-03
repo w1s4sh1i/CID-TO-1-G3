@@ -37,8 +37,24 @@ module fir_control_tb;
         clk = 0;
         forever #5 clk = ~clk;
     end
+    
+    // - [X] Adicionar um dump e reconfigurar 
+	initial begin
+		
+		// Specify the VCD file name
+		$dumpfile("CIDI-SD192-fir-controll.vcd"); 
+		$dumpvars(0, fir_control_tb); 
+
+		// Editar
+		$display("|TIME | |"); // formatar saída vísível no terminal
+		$monitor("|%0t | |", 
+			  $time, 
+		); 
+	end
 
     initial begin
+    
+    	// [ ] Especificar quais testes estão sendo realizados; 
         errors = 0;
         rst = 1;
         start = 0;

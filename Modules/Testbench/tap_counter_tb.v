@@ -28,6 +28,20 @@ module tap_counter_tb;
 
   // Geração do Clock
   always #(CLK_PERIOD/2) clk = ~clk;
+  
+   // - [X] Adicionar um dump e reconfigurar 
+	initial begin
+		
+		// Specify the VCD file name
+		$dumpfile("CIDI-SD192-fir-controll.vcd"); 
+		$dumpvars(0, fir_control_tb); 
+
+		// Editar
+		$display("|TIME | |"); // formatar saída vísível no terminal
+		$monitor("|%0t | |", 
+			  $time, 
+		); 
+	end 
 
   // Procedimento de Teste
   initial begin

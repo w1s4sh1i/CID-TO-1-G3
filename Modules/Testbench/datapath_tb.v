@@ -1,7 +1,5 @@
 /*
 TODO
-
-- [ ] Adicionar um dump e reconfigurar 
 - [ ] Adicionar clock por instância;  
 */
 `timescale 1 ns / 1 ps
@@ -12,162 +10,179 @@ TODO
 
 module fir_datapath_tb;
 
-    parameter K  = 8;
-    parameter DW = 8;
-    parameter CW = 8;
+	parameter K  = 8;
+	parameter DW = 8;
+	parameter CW = 8;
 
-    localparam AW = DW + CW + $clog2(K) + 1;
+	localparam AW = DW + CW + $clog2(K) + 1;
 
-    reg clk, rst;
-    reg shift_en, mac_en, acc_clear, start, tap_en;
-    reg signed [DW-1:0] x_in;
-    wire signed [DW+CW+$clog2(K):0] y_out;
+	reg clk, rst;
+	reg shift_en, mac_en, acc_clear, start, tap_en;
+	reg signed [DW-1:0] x_in;
+	wire signed [DW+CW+$clog2(K):0] y_out;
 
-    fir_datapath #(
-        .K(K),
-        .DW(DW),
-        .CW(CW)
-    ) dut (
-        .clk(clk),
-        .rst(rst),
-        .shift_en(shift_en),
-        .mac_en(mac_en),
-        .acc_clear(acc_clear),
-        .start(start),
-        .tap_en(tap_en),
-        .x_in(x_in),
-        .y_out(y_out)
-    );
+	fir_datapath #(
+		.K(K),
+		.DW(DW),
+		.CW(CW)
+	) dut (
+		.clk(clk),
+		.rst(rst),
+		.shift_en(shift_en),
+		.mac_en(mac_en),
+		.acc_clear(acc_clear),
+		.start(start),
+		.tap_en(tap_en),
+		.x_in(x_in),
+		.y_out(y_out)
+	);
 
-    always #5 clk = ~clk;
+	always #5 clk = ~clk;
+	
+	// - [X] Adicionar um dump e reconfigurar 
+	initial begin
+		
+		// Specify the VCD file name
+		$dumpfile("CIDI-SD192-fir-datapath.vcd"); 
+		$dumpvars(0, fir_datapath_tb); 
 
-    // Modelo referÃªncia para o scoreboard
-    reg signed [DW-1:0] samples [0:K-1];
-    reg signed [CW-1:0] coeffs  [0:K-1];
-    reg signed [AW-1:0] expected;
+		// Editar
+		$display("|TIME | |"); // formatar saída vísível no terminal
+		$monitor("|%0t | |", 
+			  $time, 
+		); 
+	end
 
-    integer i;
 
-    initial begin
-        $readmemh("coeffs.mem", coeffs); // ???
-        for (i = 0; i < K; i = i + 1)
-            samples[i] = 0;
-    end
+	// Modelo referência para o scoreboard
+	reg signed [DW-1:0] samples [0 : K-1];
+	reg signed [CW-1:0] coeffs  [0 : K-1];
+	reg signed [AW-1:0] expected;
 
-    // Scoreboard
-task automatic scoreboard_calc;
+	integer i;
 
-    integer j;
-    reg signed [AW-1:0] partial;
-    reg signed [DW+CW-1:0] product;
+	initial begin
+		$readmemh("coeffs.mem", coeffs); // ???
+		for (i = 0; i < K; i = i + 1)
+		    samples[i] = 0;
+	end
 
-    begin
-        expected = 0;
+	// Scoreboard
+	task automatic scoreboard_calc;
 
-        $display("Valores encontrados:");
+		integer j;
+		reg signed [AW-1:0] partial;
+		reg signed [DW+CW-1:0] product;
 
-        for (j = 0; j < K; j = j + 1) begin
-            product = samples[j] * coeffs[j];
-            partial = expected + product;
+		begin
+		expected = 0;
 
-            $display("tap=%0d | sample=%0d | coeff=%0d | prod=%0d | soma_parcial=%0d",
-                     j, samples[j], coeffs[j], product, partial);
+		$display("Valores encontrados:");
 
-            expected = partial;
-        end
+		for (j = 0; j < K; j = j + 1) begin
+		    product = samples[j] * coeffs[j];
+		    partial = expected + product;
 
-        $display("Resultado esperado = %0d", expected);
-    end
+		    $display("tap=%0d | sample=%0d | coeff=%0d | prod=%0d | soma_parcial=%0d",
+		             j, samples[j], coeffs[j], product, partial);
 
-endtask
+		    expected = partial;
+		end
 
-    // Driver
-    task automatic driver(input signed [DW-1:0] sample);
-        begin
-            // shift modelo
-            for (i = K-1; i > 0; i = i - 1)
-                samples[i] = samples[i-1];
+		$display("Resultado esperado = %0d", expected);
+	end
 
-            samples[0] = sample;
+	endtask
 
-            scoreboard_calc();
+	// Driver
+	task automatic driver(input signed [DW-1:0] sample);
+		begin
+		    // shift modelo
+		    for (i = K-1; i > 0; i = i - 1)
+		        samples[i] = samples[i-1];
 
-            // inicia DUT
-            @(posedge clk);
-            shift_en  = 1;
-            acc_clear = 1;
-            start     = 1;
-            x_in      = sample;
+		    samples[0] = sample;
 
-            @(posedge clk);
-            shift_en  = 0;
-            acc_clear = 0;
-            start     = 0;
+		    scoreboard_calc();
 
-            for (i = 0; i < K; i = i + 1) begin
-                @(posedge clk);
-                mac_en = 1;
-                tap_en = 1;
-            end
+		    // inicia DUT
+		    @(posedge clk);
+		    shift_en  = 1;
+		    acc_clear = 1;
+		    start     = 1;
+		    x_in      = sample;
 
-            @(posedge clk);
-            mac_en = 0;
-            tap_en = 0;
-        end
-    endtask
+		    @(posedge clk);
+		    shift_en  = 0;
+		    acc_clear = 0;
+		    start     = 0;
 
-    // Monitor
-    task automatic monitor;
-        begin
-            @(posedge clk);
+		    for (i = 0; i < K; i = i + 1) begin
+		        @(posedge clk);
+		        mac_en = 1;
+		        tap_en = 1;
+		    end
 
-            if (y_out !== expected)
-               $display("Erro -> %0d  foi obtido=%0d", expected, y_out);
-            else
-               $display("Resultado OK");
-        end
-    endtask
+		    @(posedge clk);
+		    mac_en = 0;
+		    tap_en = 0;
+		end
+	endtask
 
-    // Sequence
-    task automatic send(input signed [DW-1:0] sample);
-        begin
-            driver(sample);
-            monitor();
-        end
-    endtask
+	// Monitor
+	task automatic monitor;
+		begin
+		    @(posedge clk);
 
-    // Testes
-    initial begin
-        clk = 0;
-        rst = 1;
+		    if (y_out !== expected)
+		       $display("Erro -> %0d  foi obtido=%0d", expected, y_out);
+		    else
+		       $display("Resultado OK");
+		end
+	endtask
 
-        shift_en = 0;
-        mac_en = 0;
-        acc_clear = 0;
-        start = 0;
-        tap_en = 0;
-        x_in = 0;
+	// Sequence
+	task automatic send(input signed [DW-1:0] sample);
+		begin
+		    driver(sample);
+		    monitor();
+		end
+	endtask
 
-        #20 rst = 0;
+	// Testes
+	initial begin
+	
+		// [ ] Especificar quais testes estão sendo realizados; 
+		clk = 0;
+		rst = 1;
 
-        // impulso
-        send(1);
-        repeat(K) send(0);
+		shift_en = 0;
+		mac_en = 0;
+		acc_clear = 0;
+		start = 0;
+		tap_en = 0;
+		x_in = 0;
 
-        // crescente
-        send(1);
-        send(2);
-        send(3);
-        send(4);
+		#20 rst = 0;
 
-        // negativos
-        send(-1);
-        send(-2);
-        send(3);
-        send(-4);
+		// impulso
+		send(1);
+		repeat(K) send(0);
 
-        #100;
-        $finish;
-    end
+		// crescente
+		send(1);
+		send(2);
+		send(3);
+		send(4);
+
+		// negativos
+		send(-1);
+		send(-2);
+		send(3);
+		send(-4);
+
+		#100;
+		$finish;
+	end
 
 endmodule

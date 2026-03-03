@@ -55,6 +55,21 @@ module fir_datapath_tb;
     // ==========================
     always #5 clk = ~clk;
 
+	 // - [X] Adicionar um dump e reconfigurar 
+	initial begin
+		
+		// Specify the VCD file name
+		$dumpfile("CIDI-SD192-fir-controll.vcd"); 
+		$dumpvars(0, fir_control_tb); 
+
+		// Editar
+		$display("|TIME | |"); // formatar saída vísível no terminal
+		$monitor("|%0t | |", 
+			  $time, 
+		); 
+	end
+	
+	
     // ==========================
     // Modelo de referência
     // ==========================

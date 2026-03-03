@@ -35,6 +35,9 @@ module mux_taps_tb;
     
     // Adicionar $monitor and dump; 
 
+	// - [ ] Adicionar um dump e reconfigurar 
+		
+	
     initial begin
 
         $display("<< Starting mux_taps Self-Checking Testbench >>");
