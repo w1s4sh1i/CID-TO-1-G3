@@ -1,23 +1,22 @@
 module rom #(
-    parameter NUM_TAPS = 8;
-    parameter COEFF_WIDTH = 8;
+    parameter NUM_TAPS    = 8,
+    parameter COEFF_WIDTH = 8
 )(
-    input [$clog2(NUM_TAPS)-1:0] addr,
-    output reg [CW-1:0] coeff
+    input  wire [$clog2(NUM_TAPS)-1:0] addr,
+    output reg  signed [COEFF_WIDTH-1:0] coeff
 );
-    
-    always @(addr) begin
-        case (addr)
-            3'b000: coeff = {CW-1{1'b0}, {1'b1}};
-            3'b001: coeff = {CW-1{1'b0}, {1'b1}};
-            3'b010: coeff = {CW-1{1'b0}, {1'b1}};
-            3'b011: coeff = {CW-1{1'b0}, {1'b1}};
-            3'b100: coeff = {CW-1{1'b0}, {1'b1}};
-            3'b101: coeff = {CW-1{1'b0}, {1'b1}};
-            3'b110: coeff = {CW-1{1'b0}, {1'b1}};
-            3'b111: coeff = {CW-1{1'b0}, {1'b1}};
-            default: coeff = 0;
-        endcase
+
+    // Memória de coeficientes
+    reg signed [COEFF_WIDTH-1:0] mem [0:NUM_TAPS-1];
+
+    // Inicializa a ROM a partir de arquivo externo
+    initial begin
+        $readmemh("coeffs.mem", mem);
+    end
+
+    // Leitura combinacional
+    always @(*) begin
+        coeff = mem[addr];
     end
 
 endmodule
