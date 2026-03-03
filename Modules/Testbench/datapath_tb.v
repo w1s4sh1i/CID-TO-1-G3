@@ -6,11 +6,11 @@ TODO
 */
 `timescale 1 ns / 1 ps
 
-// [ ] Importar configurações 
+// [ ] Importar configurações e arquivos
 // [x] Change $stop by $finish;
 
 
-module FIR_datapath_tb;
+module fir_datapath_tb;
 
     parameter K  = 8;
     parameter DW = 8;
@@ -23,7 +23,7 @@ module FIR_datapath_tb;
     reg signed [DW-1:0] x_in;
     wire signed [DW+CW+$clog2(K):0] y_out;
 
-    FIR_datapath #(
+    fir_datapath #(
         .K(K),
         .DW(DW),
         .CW(CW)

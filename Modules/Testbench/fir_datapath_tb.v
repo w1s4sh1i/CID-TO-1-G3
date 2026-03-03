@@ -6,10 +6,10 @@ TODO
 */
 `timescale 1 ns / 1 ps
 
-// [ ] Importar configurações 
+// [ ] Importar configurações e arquivos
 // [x] Change $stop by $finish;
 
-module FIR_datapath_tb;
+module fir_datapath_tb;
 
     // ==========================
     // Parâmetros
@@ -39,7 +39,7 @@ module FIR_datapath_tb;
     // ==========================
     // Instância do DUT
     // ==========================
-    FIR_datapath #(K, DW, CW) DUT (
+    fir_datapath #(K, DW, CW) DUT (
         .clk(clk),
         .rst(rst),
         .shift_en(shift_en),

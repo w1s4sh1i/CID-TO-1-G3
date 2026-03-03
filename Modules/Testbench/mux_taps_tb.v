@@ -6,7 +6,7 @@ TODO
 */
 `timescale 1 ns / 1 ps
 
-// [ ] Importar configurações 
+// [ ] Importar configurações e arquivos
 // [x] Change $stop by $finish;
 
 module mux_taps_tb;
