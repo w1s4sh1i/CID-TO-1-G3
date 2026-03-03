@@ -2,6 +2,21 @@
 
 > Description
 
+## Tools
+
+> 
+
+### HDL: Verilog
+
+> Icarus (iverilog) 
+
+> GTKWave
+
+> ModelSim
+
+### Simulation: Python
+
+
 ## Design 
 
 > 
@@ -27,3 +42,10 @@
 │   └── files
 
 ```
+
+## Version 
+
+> 1.3
+
+
+

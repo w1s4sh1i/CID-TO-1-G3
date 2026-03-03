@@ -1,8 +1,8 @@
 # Filtro FIR Sequencial (Arquitetura MAC) project
 
-> Projeto Orientado 1 (SD192) do Programa de formação em Micro-eletrônica e Sistemas Embarcados [CI DIGITAL]() - T2/25, realizado pela instituição [INATEL](), Santa Rita do Sapucaí / MG. 
+> Projeto Orientado 1 (SD192) do Programa de formação em Micro-eletrônica e Sistemas Embarcados [CI DIGITAL](https://cidigital.softex.br) - T2/25, realizado pela instituição [INATEL](https://inatel.br/home/), Santa Rita do Sapucaí / MG. 
 
-## 1 Objetivo
+## 1	Objetivo
 
 - [ ] Implementar um filtro digital de Resposta ao Impulso Finita (FIR) utilizando uma arquitetura de hardware compartilhado. O objetivo é otimizar o uso de área da FPGA através de uma unidade de Multiplicação e Acúmulo (MAC) única, processando as amostras de forma sequencial no tempo.
 
@@ -60,19 +60,19 @@ partir de arquivos externos.
 
 ## ARQUIVOS DE SUPORTE
 
-1. Relatório Final: []()
+1. **Relatório**: [Guided Work 1 - Report]()
 
-2. Github: []()
+2. **Repositório (Github)**: [Guided Work 1 - Repository](https://github.com/w1s4sh1i/CID-TO-1-G3)
 
-3. Artigo: []()
+3. **Artigo**: [Guided Work 1 - Article]()
  
 ## ORIENTADORES
 
-|ORIENTADOR											|FORMAÇÃO									|
-|:---												|:---										|
-|[Elivander Judas Tadeu Pereira]()					|Doutor em Engenharia de Telecomunicações	|
-|[Felipe Gustavo de Freitas Rocha]()				|Mestre em Engenharia de Telecomunicações	|
-|[Letícia Carneiro de Souza]() 						|Doutora em Telecomunicações				|
+|ADVISOR												|GRADUATION									|
+|:---													|:---										|
+|[Elivander Judas Tadeu **Pereira**]()					|Doutor em Engenharia de Telecomunicações	|
+|[Felipe Gustavo de Freitas **Rocha**]()				|Mestre em Engenharia de Telecomunicações	|
+|[Letícia **Carneiro** de Souza]() 						|Doutora em Telecomunicações				|
 
 ## REFERENCES
 
@@ -86,6 +86,17 @@ partir de arquivos externos.
 
 [5] []();
 
+## Version
+
+> 1.5
+
 ## COLABORADORES
 
-- [ ] Configurar lista de colaboradores do grupo 3; 
+<a href="https://github.com/w1s4sh1i/CID-TO-1-G3/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=w1s4sh1i/CID-TO-1-G3" />
+</a>
+
+
+
+
+
