@@ -23,6 +23,8 @@ module mux_taps_tb;
     integer errors;
 
     reg signed [DATA_WIDTH-1:0] tap_mem [0:NUM_TAPS-1];
+    
+    // Adicionar $monitor and dump; 
 
     initial begin
 
@@ -30,7 +32,7 @@ module mux_taps_tb;
 
         errors = 0;
 
-        $readmemb("../Tests/test_mux_taps.txt", tap_mem);
+        $readmemb("../dataset-tests/test_mux_taps.txt", tap_mem);
 
         taps_in = 0;
         for (i = 0; i < NUM_TAPS; i = i + 1) begin
