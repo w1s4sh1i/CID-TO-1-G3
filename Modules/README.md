@@ -25,8 +25,8 @@
 
 ```
 .
-├── main_file
-│   └── sub_file
+├── main_folder
+│   └── files
 
 ```
 
@@ -38,14 +38,14 @@
 
 ```
 .
-├── main_file
-│   └── sub_file
+├── main_folder
+│   └── files
 
 ```
 
 ## Version 
 
-> 1.0
+> 1.3
 
 
 

@@ -35,10 +35,10 @@ module shift_register #(
     parameter DATA_WIDTH = 8,
     parameter NUM_TAPS   = 8
 )(
-    input  wire                            clk,
-    input  wire                            rst,
-    input  wire                            shift_en,
-    input  wire signed [DATA_WIDTH-1:0]    data_in,
+    input  wire                                  clk,
+    input  wire                                  rst,
+    input  wire                                  shift_en,
+    input  wire signed [DATA_WIDTH-1:0]          data_in,
     output wire signed [NUM_TAPS*DATA_WIDTH-1:0] taps_out
 );
 
@@ -56,7 +56,7 @@ module shift_register #(
             // Desloca: a cada nova amostra, empurra as antigas para posições maiores
             for (i = NUM_TAPS-1; i > 0; i = i - 1)
                 reg_mem[i] <= reg_mem[i-1];
-            reg_mem[0] <= data_in;  // x[n] entra na posição 0
+            reg_mem[0] <= data_in; // x[n] entra na posição 0
         end
     end
 
