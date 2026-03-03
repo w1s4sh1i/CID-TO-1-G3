@@ -2,6 +2,21 @@
 
 > Description
 
+## Tools
+
+> 
+
+### HDL: Verilog
+
+> Icarus (iverilog) 
+
+> GTKWave
+
+> ModelSim
+
+### Simulation: Python
+
+
 ## Design 
 
 > 
@@ -10,8 +25,8 @@
 
 ```
 .
-├── main_folder
-│   └── sub_folder
+├── main_file
+│   └── sub_file
 
 ```
 
@@ -23,7 +38,14 @@
 
 ```
 .
-├── main_folder
-│   └── sub_folder
+├── main_file
+│   └── sub_file
 
 ```
+
+## Version 
+
+> 1.0
+
+
+

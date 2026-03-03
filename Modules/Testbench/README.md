@@ -6,8 +6,8 @@
 
 ```
 .
-├── main_folder
-│   └── sub_folder
+├── main_file
+│   └── sub_file
 
 ```
 
