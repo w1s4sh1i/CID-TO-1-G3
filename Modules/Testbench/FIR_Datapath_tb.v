@@ -1,6 +1,15 @@
-`timescale 1ns/1ps
+/*
+TODO
 
-module tb_FIR_datapath;
+- [ ] Adicionar um dump e reconfigurar 
+- [ ] Adicionar clock por instância;  
+*/
+`timescale 1 ns / 1 ps
+
+// [ ] Importar configurações 
+// [x] Change $stop by $finish;
+
+module FIR_datapath_tb;
 
     // ==========================
     // Parâmetros
@@ -56,7 +65,7 @@ module tb_FIR_datapath;
     reg signed [AW-1:0] y_expected;
 
     initial begin
-        $readmemh("coeffs.mem", coeff_ref);
+        $readmemh("coeffs.mem", coeff_ref); /// ???
     end
 
     // ==========================
@@ -135,7 +144,7 @@ module tb_FIR_datapath;
         $display("🎉 TESTE FINALIZADO COM SUCESSO");
         $display("=================================");
 
-        $stop;
+        $finish;
     end
 
 endmodule

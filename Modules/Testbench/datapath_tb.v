@@ -1,4 +1,14 @@
-`timescale 1ns/1ps
+/*
+TODO
+
+- [ ] Adicionar um dump e reconfigurar 
+- [ ] Adicionar clock por instância;  
+*/
+`timescale 1 ns / 1 ps
+
+// [ ] Importar configurações 
+// [x] Change $stop by $finish;
+
 
 module FIR_datapath_tb;
 
@@ -39,7 +49,7 @@ module FIR_datapath_tb;
     integer i;
 
     initial begin
-        $readmemh("coeffs.mem", coeffs);
+        $readmemh("coeffs.mem", coeffs); // ???
         for (i = 0; i < K; i = i + 1)
             samples[i] = 0;
     end
@@ -114,7 +124,7 @@ endtask
             if (y_out !== expected)
                $display("Erro -> %0d  foi obtido=%0d", expected, y_out);
             else
-                 $display("Resultado OK");
+               $display("Resultado OK");
         end
     endtask
 

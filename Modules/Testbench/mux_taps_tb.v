@@ -1,4 +1,13 @@
-`timescale 1ns / 1ps
+/*
+TODO
+
+- [ ] Adicionar um dump e reconfigurar 
+- [ ] Adicionar clock por instância;  
+*/
+`timescale 1 ns / 1 ps
+
+// [ ] Importar configurações 
+// [x] Change $stop by $finish;
 
 module mux_taps_tb;
 
@@ -62,7 +71,7 @@ module mux_taps_tb;
         else
             $display("TEST FAILED with %0d errors", errors);
 
-        $stop;
+        $finish;
     end
 
 endmodule

@@ -1,3 +1,15 @@
+/*
+TODO
+
+- [ ] Adicionar um dump e reconfigurar 
+- [ ] Adicionar clock por instância;  
+*/
+`timescale 1 ns / 1 ps
+
+// [ ] Importar configurações 
+// [x] Change $stop by $finish;
+
+
 module tap_counter_tb;
 
   // Parâmetros
@@ -27,10 +39,10 @@ module tap_counter_tb;
     enable = 0;
 
 
-        $display("------------------------------------------------");
+    $display("------------------------------------------------");
     $display(" Time | start | enable | tap_index | last_cycle");
     $display("------------------------------------------------");
-     $monitor(" %4t |   %b   |    %b   |     %d     |     %b", 
+    $monitor(" %4t |   %b   |    %b   |     %d     |     %b", 
                 $time,  start,   enable, tap_index, last_cycle);
 
     // 1. Reset do Sistema

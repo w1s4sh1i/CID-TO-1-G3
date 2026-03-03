@@ -1,3 +1,14 @@
+/*
+TODO
+
+- [ ] Adicionar um dump e reconfigurar 
+- [ ] Adicionar clock por instância;  
+*/
+`timescale 1 ns / 1 ps
+
+// [ ] Importar configurações 
+// [x] Change $stop by $finish;
+
 module shift_register_tb;
 
     // Parâmetros

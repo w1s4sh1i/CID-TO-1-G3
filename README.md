@@ -60,11 +60,11 @@ partir de arquivos externos.
 
 ## ARQUIVOS DE SUPORTE
 
-1. **Relatório**: [Guided Work 1 - Report]()
+> **Relatório**: [Guided Work 1 - Report]()
 
-2. **Repositório (Github)**: [Guided Work 1 - Repository](https://github.com/w1s4sh1i/CID-TO-1-G3)
+> **Repositório (Github)**: [Guided Work 1 - Repository](https://github.com/w1s4sh1i/CID-TO-1-G3)
 
-3. **Artigo**: [Guided Work 1 - Article]()
+> **Artigo**: [Guided Work 1 - Article]()
  
 ## ORIENTADORES
 
@@ -73,6 +73,7 @@ partir de arquivos externos.
 |[Elivander Judas Tadeu **Pereira**]()					|Doutor em Engenharia de Telecomunicações	|
 |[Felipe Gustavo de Freitas **Rocha**]()				|Mestre em Engenharia de Telecomunicações	|
 |[Letícia **Carneiro** de Souza]() 						|Doutora em Telecomunicações				|
+
 
 ## REFERENCES
 
@@ -89,14 +90,3 @@ partir de arquivos externos.
 ## Version
 
 > 1.5
-
-## COLABORADORES
-
-<a href="https://github.com/w1s4sh1i/CID-TO-1-G3/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=w1s4sh1i/CID-TO-1-G3" />
-</a>
-
-
-
-
-

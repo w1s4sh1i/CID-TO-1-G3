@@ -1,4 +1,13 @@
-`timescale 1ns / 1ps
+/*
+TODO
+
+- [ ] Adicionar um dump e reconfigurar 
+- [ ] Adicionar clock por instância;  
+*/
+`timescale 1 ns / 1 ps
+
+// [ ] Importar configurações 
+// [x] Change $stop by $finish;
 
 module fir_control_tb;
 
@@ -87,7 +96,7 @@ module fir_control_tb;
         else
             $display("\n==== TEST FAILED (%0d errors) ====\n", errors);
 
-        $stop;
+        $finish;
     end
 
 endmodule
