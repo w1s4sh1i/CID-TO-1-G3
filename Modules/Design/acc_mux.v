@@ -7,19 +7,18 @@
 module acc_mux #(  
     parameter ACC_WIDTH = 19 // Largura do acumulador, deve incluir bits de guarda para evitar overflow (exigência do projeto)
 )(
-    input  wire signed [ACC_WIDTH-1:0] sum_in,     // Entrada do somador (ACC + produto), representa o novo valor acumulado
-    input  wire sel_acc,                          // Sinal de controle vindo da FSM, 0 → limpar acumulador 1 → acumular normalmente
-    output wire signed [ACC_WIDTH-1:0] acc_in    // Valor que será carregado no registrador acumulador
+    input  wire signed [ACC_WIDTH-1:0] sum_in, // Entrada do somador (ACC + produto), representa o novo valor acumulado
+    input  wire sel_acc,                       // Sinal de controle vindo da FSM, 0 → limpar acumulador, 1 → acumular normalmente
+    output wire signed [ACC_WIDTH-1:0] acc_in  // Valor que será carregado no registrador do acumulador
 );
 
-// Operação combinacional simples, Se sel_acc for 1 → passa a soma / Se sel_acc for 0 → força zero (limpeza)
-assign acc_in = (sel_acc) ? sum_in : {ACC_WIDTH{1'b0}};
+    // Operação combinacional simples, Se sel_acc for 1 → passa a soma / Se sel_acc for 0 → força zero (limpeza)
+    assign acc_in = (sel_acc) ? sum_in : {ACC_WIDTH{1'b0}};
 
 endmodule
 
 
-
-/***********TESTBENCH************/
+/************TESTBENCH************/
 
 `timescale 1ns/1ps
 

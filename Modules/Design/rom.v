@@ -1,8 +1,7 @@
 module rom #(
     parameter NUM_TAPS = 8;
     parameter COEFF_WIDTH = 8;
-)
-(
+)(
     input [$clog2(NUM_TAPS)-1:0] addr,
     output reg [CW-1:0] coeff
 );

@@ -11,24 +11,25 @@ module tap_counter #(
     input  wire rst,
     input  wire start,
     input  wire enable,
-    output reg  [$clog2(K)-1:0] tap_index,     // Índice do tap atual (0 até K-1), Utilizado para endereçar a ROM e o Data Selector
+    output reg  [$clog2(K)-1:0] tap_index, // Índice do tap atual (0 até K-1), Utilizado para endereçar a ROM e o Data Selector
     output wire last_cycle
 );
-// Bloco sequencial sensível à borda de subida do clock ou ao reset
-always @(posedge clk or posedge rst) begin
-    if (rst)            // Se o reset estiver ativo, o contador é zerado
-        tap_index <= 0;
-    else if (start)     // Se a FSM indicar início de um novo processamento, o contador também é reiniciado
-        tap_index <= 0;
-    else if (enable)     // Durante o estado de processamento, o contador avança a cada ciclo de clock
-        tap_index <= tap_index + 1'b1;
-end
 
-assign last_cycle = (tap_index == K-1); // Indica à FSM que o último tap foi alcançado
+    // Bloco sequencial sensível à borda de subida do clock ou ao reset
+    always @(posedge clk or posedge rst) begin
+        if (rst)             // Se o reset estiver ativo, o contador é zerado
+            tap_index <= 0;
+        else if (start)      // Se a FSM indicar início de um novo processamento, o contador também é reiniciado
+            tap_index <= 0;
+        else if (enable)     // Durante o estado de processamento, o contador avança a cada ciclo de clock
+            tap_index <= tap_index + 1'b1;
+    end
+
+    assign last_cycle = (tap_index == K-1); // Indica à FSM que o último tap foi alcançado
 
 endmodule
 
-/********************TESTBENCH**********/
+/************TESTBENCH************/
 
 `timescale 1ns/1ps
 

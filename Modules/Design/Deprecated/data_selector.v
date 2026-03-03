@@ -4,28 +4,28 @@
 // =======================================================
 
 module data_selector #(
-    parameter DATA_WIDTH = 16,      // Largura de cada amostra (ponto fixo em complemento de dois)
-    parameter K = 8                // Número de taps do filtro FIR (ordem parametrizável)
+    parameter DATA_WIDTH = 16, // Largura de cada amostra (ponto fixo em complemento de dois)
+    parameter K = 8            // Número de taps do filtro FIR (ordem parametrizável)
 )(   
     input  wire signed [K*DATA_WIDTH-1:0] shift_bus, // Barramento único contendo todas as amostras armazenadas, tamanho total = K amostras * largura de cada amostra
-    input  wire [$clog2(K)-1:0] tap_index,          // Índice do tap atual (vem do contador de taps), determina qual amostra será selecionada
-    output reg  signed [DATA_WIDTH-1:0] sample_out // Saída, esta amostra irá para o multiplicador da arquitetura MAC
+    input  wire [$clog2(K)-1:0] tap_index,           // Índice do tap atual (vem do contador de taps), determina qual amostra será selecionada
+    output reg  signed [DATA_WIDTH-1:0] sample_out   // Saída, esta amostra irá para o multiplicador da arquitetura MAC
 );
 
 integer i;
-// Bloco combinacional, sempre que shift_bus ou tap_index mudarem, a saída será recalculada imediatamente
-always @(*) begin
-    sample_out = 0;
-    for (i = 0; i < K; i = i + 1)
-        if (tap_index == i)
-            sample_out = shift_bus[i*DATA_WIDTH +: DATA_WIDTH];
-end
+
+    // Bloco combinacional, sempre que shift_bus ou tap_index mudarem, a saída será recalculada imediatamente
+    always @(*) begin
+        sample_out = 0;
+        for (i = 0; i < K; i = i + 1)
+            if (tap_index == i)
+                sample_out = shift_bus[i*DATA_WIDTH +: DATA_WIDTH];
+    end
 
 endmodule
 
 
-
-/***********TESTBENCH***********************/ 
+/************TESTBENCH************/
 
 `timescale 1ns/1ps
 

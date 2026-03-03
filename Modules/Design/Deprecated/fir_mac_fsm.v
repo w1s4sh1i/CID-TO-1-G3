@@ -1,3 +1,5 @@
+// DEPRECATED - Verificar o arquivo atualizado: filter_fir_top.v
+
 // Máquina de Estados - Finite State Machine
 // IDLE, CAPTURE, SHIFT_REG, LOOP_MAC, DELIVER
 

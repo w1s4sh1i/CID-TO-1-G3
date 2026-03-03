@@ -1,4 +1,17 @@
-module FIR_datapath #(
+/*******************************************************************************
+Datapath é o bloco responsável por:
+Fazer todas as operações matemáticas do filtro FIR
+Contém:
+Shift register (linha de atraso)
+ROM coeficientes
+MUX seleção tap
+Multiplicador
+Somador
+Acumulador
+Registrador de saída
+/******************************************************************************/
+
+module fir_datapath #(
     parameter K  = 8,
     parameter DW = 8,
     parameter CW = 8
