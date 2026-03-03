@@ -16,7 +16,7 @@ module FIR_datapath #(
     // Dados
     input  wire signed [DW-1:0] x_in,
 
-    // SaÃ­da
+    // Sa�da
     output reg signed [DW+CW+$clog2(K):0] y_out
 );
 
@@ -77,14 +77,8 @@ module FIR_datapath #(
     // ROM de coeficientes
     // ======================================================
 
-    reg signed [CW-1:0] coeff_rom [0:K-1];
-
-    initial begin
-        $readmemh("coeffs.mem", coeff_rom);
-    end
-
-    wire signed [CW-1:0] coeff;
-    assign coeff = coeff_rom[tap_index];
+    wire signed [CW-1:0] coeff; 
+    rom #( .NUM_TAPS(K), .COEFF_WIDTH(CW) ) u_rom ( .addr(tap_index), .coeff(coeff) );
 
     // ======================================================
     // Multiplicador
@@ -107,7 +101,8 @@ module FIR_datapath #(
         .ACC_WIDTH(AW)
     ) u_acc_mux (
         .sum_in (acc_sum),
-        .sel_acc(mac_en),   // 1 = acumula | 0 = limpa
+        .acc_reg(acc_reg),   // <<< NOVO: passa o valor atual do acumulador
+        .sel_acc(mac_en),    // 1 = acumula | 0 = mant�m
         .acc_in (acc_next)
     );
 
@@ -115,18 +110,30 @@ module FIR_datapath #(
         if (rst)
             acc_reg <= '0;
         else if (acc_clear)
-            acc_reg <= '0;
+            acc_reg <= '0;    // limpeza expl�cita s� aqui
         else
             acc_reg <= acc_next;
     end
 
     // ======================================================
-    // Latch da saÃ­da
+    // Latch da sa�da
     // ======================================================
 
-    always @(posedge clk) begin
-        if (mac_en && last_cycle)
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            y_out <= '0;
+        else if (last_cycle)   // s� no �ltimo tap
             y_out <= acc_sum;
     end
 
+    // ======================================================
+    // Bloco de debug interno
+    // ======================================================
+
+    //always @(posedge clk) begin
+      //  $display("tap=%0d | sample=%h | coeff=%h | product=%h | acc_reg=%h | acc_sum=%h | y_out=%h | last_cycle=%b",
+      //           tap_index, sample, coeff, product, acc_reg, acc_sum, y_out, last_cycle);
+    //end
+
 endmodule
+
