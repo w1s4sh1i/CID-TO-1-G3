@@ -2,41 +2,22 @@
 
 module FIR_datapath_tb;
 
-    // =====================================================
-    // Parâmetros
-    // =====================================================
-
     parameter K  = 8;
     parameter DW = 8;
     parameter CW = 8;
 
     localparam AW = DW + CW + $clog2(K) + 1;
 
-    // =====================================================
-    // Sinais
-    // =====================================================
-
-    reg clk;
-    reg rst;
-
-    reg shift_en;
-    reg mac_en;
-    reg acc_clear;
-    reg start;
-    reg tap_en;
-
-    reg  signed [DW-1:0] x_in;
+    reg clk, rst;
+    reg shift_en, mac_en, acc_clear, start, tap_en;
+    reg signed [DW-1:0] x_in;
     wire signed [DW+CW+$clog2(K):0] y_out;
-
-    // =====================================================
-    // DUT
-    // =====================================================
 
     FIR_datapath #(
         .K(K),
         .DW(DW),
         .CW(CW)
-    ) uut (
+    ) dut (
         .clk(clk),
         .rst(rst),
         .shift_en(shift_en),
@@ -48,59 +29,60 @@ module FIR_datapath_tb;
         .y_out(y_out)
     );
 
-    // =====================================================
-    // Clock 100 MHz
-    // =====================================================
-
     always #5 clk = ~clk;
 
-    // =====================================================
-    // Modelo de Referência (Scoreboard)
-    // =====================================================
-
+    // Modelo referÃªncia para o scoreboard
     reg signed [DW-1:0] samples [0:K-1];
     reg signed [CW-1:0] coeffs  [0:K-1];
-
-    integer i;
     reg signed [AW-1:0] expected;
 
-    // Lê os mesmos coeficientes usados na ROM
+    integer i;
+
     initial begin
         $readmemh("coeffs.mem", coeffs);
-    end
-
-    // Inicializa shift model
-    initial begin
         for (i = 0; i < K; i = i + 1)
             samples[i] = 0;
     end
 
-    // Calcula saída esperada
-    task compute_expected;
-        begin
-            expected = 0;
-            for (i = 0; i < K; i = i + 1)
-                expected = expected + samples[i] * coeffs[i];
+    // Scoreboard
+task automatic scoreboard_calc;
+
+    integer j;
+    reg signed [AW-1:0] partial;
+    reg signed [DW+CW-1:0] product;
+
+    begin
+        expected = 0;
+
+        $display("Valores encontrados:");
+
+        for (j = 0; j < K; j = j + 1) begin
+            product = samples[j] * coeffs[j];
+            partial = expected + product;
+
+            $display("tap=%0d | sample=%0d | coeff=%0d | prod=%0d | soma_parcial=%0d",
+                     j, samples[j], coeffs[j], product, partial);
+
+            expected = partial;
         end
-    endtask
 
-    // =====================================================
-    // Driver (envia amostra)
-    // =====================================================
+        $display("Resultado esperado = %0d", expected);
+    end
 
-    task send_sample;
-        input signed [DW-1:0] sample;
+endtask
+
+    // Driver
+    task automatic driver(input signed [DW-1:0] sample);
         begin
-
-            // Atualiza modelo de referência
+            // shift modelo
             for (i = K-1; i > 0; i = i - 1)
                 samples[i] = samples[i-1];
 
             samples[0] = sample;
 
-            compute_expected;
+            scoreboard_calc();
 
-            // Fase SHIFT
+            // inicia DUT
             @(posedge clk);
             shift_en  = 1;
             acc_clear = 1;
@@ -112,7 +94,6 @@ module FIR_datapath_tb;
             acc_clear = 0;
             start     = 0;
 
-            // Fase MAC (K ciclos)
             for (i = 0; i < K; i = i + 1) begin
                 @(posedge clk);
                 mac_en = 1;
@@ -122,28 +103,34 @@ module FIR_datapath_tb;
             @(posedge clk);
             mac_en = 0;
             tap_en = 0;
-
-            // Espera y_out ser atualizado
-            @(posedge clk);
-
-            // Scoreboard
-            if (y_out !== expected)
-                $display("❌ ERRO: esperado=%0d obtido=%0d", expected, y_out);
-            else
-                $display("✅ OK: %0d", y_out);
-
         end
     endtask
 
-    // =====================================================
+    // Monitor
+    task automatic monitor;
+        begin
+            @(posedge clk);
+
+            if (y_out !== expected)
+               $display("Erro -> %0d  foi obtido=%0d", expected, y_out);
+            else
+                 $display("Resultado OK");
+        end
+    endtask
+
+    // Sequence
+    task automatic send(input signed [DW-1:0] sample);
+        begin
+            driver(sample);
+            monitor();
+        end
+    endtask
+
     // Testes
-    // =====================================================
-
     initial begin
-
-        // Inicialização
         clk = 0;
         rst = 1;
+
         shift_en = 0;
         mac_en = 0;
         acc_clear = 0;
@@ -153,30 +140,21 @@ module FIR_datapath_tb;
 
         #20 rst = 0;
 
-        $display("\n==============================");
-        $display(" TESTE 1 - IMPULSO UNITÁRIO ");
-        $display("==============================\n");
+        // impulso
+        send(1);
+        repeat(K) send(0);
 
-        send_sample(1);
-        repeat(K) send_sample(0);
+        // crescente
+        send(1);
+        send(2);
+        send(3);
+        send(4);
 
-        $display("\n==============================");
-        $display(" TESTE 2 - SEQUÊNCIA CRESCENTE ");
-        $display("==============================\n");
-
-        send_sample(1);
-        send_sample(2);
-        send_sample(3);
-        send_sample(4);
-
-        $display("\n==============================");
-        $display(" TESTE 3 - VALORES NEGATIVOS ");
-        $display("==============================\n");
-
-        send_sample(-1);
-        send_sample(-2);
-        send_sample(3);
-        send_sample(-4);
+        // negativos
+        send(-1);
+        send(-2);
+        send(3);
+        send(-4);
 
         #100;
         $finish;
