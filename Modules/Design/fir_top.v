@@ -80,11 +80,11 @@ module fir_top #(
         .rst        (rst),
         .start      (start),
         .shift_en   (shift_en),
-        .tap_en     (tap_en),
+        // .tap_en     (tap_en), -> Sem tap_en no fir_control
         .acc_clear  (acc_clear),
         .mac_en     (mac_en),
-        .tap_index  (tap_index),
         .data_valid (data_valid)
+        .tap_index  (tap_index),
     );
 
     // ===============================
@@ -101,8 +101,10 @@ module fir_top #(
         .shift_en  (shift_en),
         .mac_en    (mac_en),
         .acc_clear (acc_clear),
+        // .tap_index (tap_index), -> Sem tap_index no fir_datapath
+        .start     (start),
+		.tap_en    (tap_en),
         .x_in      (x_in),
-        .tap_index (tap_index),
         .y_out     (y_out)
     );
 
