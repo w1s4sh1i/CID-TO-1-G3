@@ -1,7 +1,5 @@
 /*
 TODO
-
-- [ ] Adicionar um dump e reconfigurar 
 - [ ] Adicionar clock por instância;  
 */
 `timescale 1 ns / 1 ps
@@ -9,58 +7,44 @@ TODO
 // [ ] Importar configurações e arquivos
 // [x] Change $stop by $finish;
 
+
 module fir_datapath_tb;
 
-    // ==========================
-    // Parâmetros
-    // ==========================
-    parameter K  = 4;
-    parameter DW = 8;
-    parameter CW = 8;
+	parameter K  = 8;
+	parameter DW = 8;
+	parameter CW = 8;
 
-    localparam PW = DW + CW;
-    localparam AW = PW + $clog2(K) + 1;
+	localparam AW = DW + CW + $clog2(K) + 1;
 
-    // ==========================
-    // Sinais
-    // ==========================
-    reg clk;
-    reg rst;
+	reg clk, rst;
+	reg shift_en, mac_en, acc_clear, start, tap_en;
+	reg signed [DW-1:0] x_in;
+	wire signed [DW+CW+$clog2(K):0] y_out;
 
-    reg shift_en;
-    reg mac_en;
-    reg acc_clear;
+	fir_datapath #(
+		.K(K),
+		.DW(DW),
+		.CW(CW)
+	) dut (
+		.clk(clk),
+		.rst(rst),
+		.shift_en(shift_en),
+		.mac_en(mac_en),
+		.acc_clear(acc_clear),
+		.start(start),
+		.tap_en(tap_en),
+		.x_in(x_in),
+		.y_out(y_out)
+	);
 
-    reg signed [DW-1:0] x_in;
-    reg [$clog2(K)-1:0] tap_index;
-
-    wire signed [AW-1:0] y_out;
-
-    // ==========================
-    // Instância do DUT
-    // ==========================
-    fir_datapath #(K, DW, CW) DUT (
-        .clk(clk),
-        .rst(rst),
-        .shift_en(shift_en),
-        .mac_en(mac_en),
-        .acc_clear(acc_clear),
-        .x_in(x_in),
-        .tap_index(tap_index),
-        .y_out(y_out)
-    );
-
-    // ==========================
-    // Clock
-    // ==========================
-    always #5 clk = ~clk;
-
-	 // - [X] Adicionar um dump e reconfigurar 
+	always #5 clk = ~clk;
+	
+	// - [X] Adicionar um dump e reconfigurar 
 	initial begin
 		
 		// Specify the VCD file name
-		$dumpfile("CIDI-SD192-fir-controll.vcd"); 
-		$dumpvars(0, fir_control_tb); 
+		$dumpfile("CIDI-SD192-fir-datapath.vcd"); 
+		$dumpvars(0, fir_datapath_tb); 
 
 		// Editar
 		$display("|TIME | |"); // formatar saída vísível no terminal
@@ -68,108 +52,137 @@ module fir_datapath_tb;
 			  $time, 
 		); 
 	end
+
+
+	// Modelo referência para o scoreboard
+	reg signed [DW-1:0] samples [0 : K-1];
+	reg signed [CW-1:0] coeffs  [0 : K-1];
+	reg signed [AW-1:0] expected;
+
+	integer i;
+
+	initial begin
+		$readmemh("coeffs.mem", coeffs); // ???
+		for (i = 0; i < K; i = i + 1)
+		    samples[i] = 0;
+	end
+
+	// Scoreboard
+	task automatic scoreboard_calc;
+
+		integer j;
+		reg signed [AW-1:0] partial;
+		reg signed [DW+CW-1:0] product;
+
+		begin
+		expected = 0;
+
+		$display("Valores encontrados:");
+
+		for (j = 0; j < K; j = j + 1) begin
+		    product = samples[j] * coeffs[j];
+		    partial = expected + product;
+
+		    $display("tap=%0d | sample=%0d | coeff=%0d | prod=%0d | soma_parcial=%0d",
+		             j, samples[j], coeffs[j], product, partial);
+
+		    expected = partial;
+		end
+
+		$display("Resultado esperado = %0d", expected);
+	end
+
+	endtask
+
+	// Driver
+	task automatic driver(input signed [DW-1:0] sample);
+		begin
+		    // shift modelo
+		    for (i = K-1; i > 0; i = i - 1)
+		        samples[i] = samples[i-1];
+
+		    samples[0] = sample;
+
+		    scoreboard_calc();
+
+		    // inicia DUT
+		    @(posedge clk);
+		    shift_en  = 1;
+		    acc_clear = 1;
+		    start     = 1;
+		    x_in      = sample;
+
+		    @(posedge clk);
+		    shift_en  = 0;
+		    acc_clear = 0;
+		    start     = 0;
+
+		    for (i = 0; i < K; i = i + 1) begin
+		        @(posedge clk);
+		        mac_en = 1;
+		        tap_en = 1;
+		    end
+
+		    @(posedge clk);
+		    mac_en = 0;
+		    tap_en = 0;
+		end
+	endtask
+
+	// Monitor
+	task automatic monitor;
+		begin
+		    @(posedge clk);
+
+		    if (y_out !== expected)
+		       $display("Erro -> %0d  foi obtido=%0d", expected, y_out);
+		    else
+		       $display("Resultado OK");
+		end
+	endtask
+
+	// Sequence
+	task automatic send(input signed [DW-1:0] sample);
+		begin
+		    driver(sample);
+		    monitor();
+		end
+	endtask
+
+	// Testes
+	initial begin
 	
-	
-    // ==========================
-    // Modelo de referência
-    // ==========================
-    reg signed [DW-1:0] x_ref [0:K-1];
-    reg signed [CW-1:0] coeff_ref [0:K-1];
+		// [ ] Especificar quais testes estão sendo realizados; 
+		clk = 0;
+		rst = 1;
 
-    integer i, n;
-    reg signed [AW-1:0] y_expected;
+		shift_en = 0;
+		mac_en = 0;
+		acc_clear = 0;
+		start = 0;
+		tap_en = 0;
+		x_in = 0;
 
-    initial begin
-        $readmemh("coeffs.mem", coeff_ref); /// ???
-    end
+		#20 rst = 0;
 
-    // ==========================
-    // Teste automático
-    // ==========================
-    initial begin
+		// impulso
+		send(1);
+		repeat(K) send(0);
 
-        clk = 0;
-        rst = 1;
-        shift_en = 0;
-        mac_en = 0;
-        acc_clear = 0;
-        x_in = 0;
-        tap_index = 0;
+		// crescente
+		send(1);
+		send(2);
+		send(3);
+		send(4);
 
-        // Reset
-        #20;
-        rst = 0;
+		// negativos
+		send(-1);
+		send(-2);
+		send(3);
+		send(-4);
 
-        // Inicializa modelo referência
-        for (i = 0; i < K; i = i + 1)
-            x_ref[i] = 0;
-
-        // ==========================
-        // Loop de testes
-        // ==========================
-        for (n = 0; n < 10; n = n + 1) begin
-
-            // Gera amostra aleatória
-            x_in = $random % 20;
-
-            // Shift no modelo referência
-            for (i = K-1; i > 0; i = i - 1)
-                x_ref[i] = x_ref[i-1];
-            x_ref[0] = x_in;
-
-            // Envia para DUT
-            shift_en = 1;
-            #10;
-            shift_en = 0;
-
-            // Limpa acumulador
-            acc_clear = 1;
-            #10;
-            acc_clear = 0;
-
-            // Executa MAC sequencial
-            for (i = 0; i < K; i = i + 1) begin
-                tap_index = i;
-                mac_en = 1;
-                #10;
-            end
-
-            mac_en = 0;
-
-            // Calcula resultado esperado
-            y_expected = 0;
-            for (i = 0; i < K; i = i + 1)
-                y_expected = y_expected + x_ref[i] * coeff_ref[i];
-
-            #10;
-
-            // Comparação automática
-            if (y_out !== y_expected) begin
-                $display("❌ ERRO na amostra %0d", n);
-                $display("Esperado = %0d | Obtido = %0d", y_expected, y_out);
-                $fatal;
-            end
-            else begin
-                $display("✅ OK amostra %0d | Resultado = %0d", n, y_out);
-            end
-
-        end
-
-        $display("=================================");
-        $display("🎉 TESTE FINALIZADO COM SUCESSO");
-        $display("=================================");
-
-        $finish;
-    end
+		#100;
+		$finish;
+	end
 
 endmodule
-
-/*******************************************************
-Testbench valida:
-* Shift register
-* Seleção do tap
-* Multiplicador
-* Acumulador
-* Lógica de limpeza
-* Soma completa do FIR
-********************************************************/

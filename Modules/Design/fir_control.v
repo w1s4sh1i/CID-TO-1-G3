@@ -3,7 +3,7 @@ fir_control é a Unidade de Controle (FSM – Finite State Machine) do filtro FI
 Controla quando cada operação deve acontecer.
 ********************************************************************************/
 
-module FIR_Control #(
+module fir_control #(
     parameter K = 8
 )(
     input  wire clk,
