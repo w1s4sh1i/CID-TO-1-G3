@@ -20,38 +20,37 @@ endmodule
 
 /************TESTBENCH************/
 
-`timescale 1ns/1ps
+// `timescale 1ns/1ps
 
-module tb_acc_mux;
+// module acc_mux_tb;
 
-    parameter ACC_WIDTH = 19;
+//     parameter ACC_WIDTH = 19;
 
-    reg  signed [ACC_WIDTH-1:0] sum_in;
-    reg  sel_acc;
-    wire signed [ACC_WIDTH-1:0] acc_in;
+//     reg  signed [ACC_WIDTH-1:0] sum_in;
+//     reg  sel_acc;
+//     wire signed [ACC_WIDTH-1:0] acc_in;
 
-    acc_mux #(.ACC_WIDTH(ACC_WIDTH)) dut (
-        .sum_in(sum_in),
-        .sel_acc(sel_acc),
-        .acc_in(acc_in)
-    );
+//     acc_mux #(.ACC_WIDTH(ACC_WIDTH)) dut (
+//         .sum_in(sum_in),
+//         .sel_acc(sel_acc),
+//         .acc_in(acc_in)
+//     );
 
-    initial begin
-        sum_in  = 19'sd123;
-        sel_acc = 0;
-        #10;
+//     initial begin
+//         sum_in  = 19'sd123;
+//         sel_acc = 0;
+//         #10;
 
-        sel_acc = 1;
-        #10;
+//         sel_acc = 1;
+//         #10;
 
-        sum_in = 19'sd456;
-        #10;
+//         sum_in = 19'sd456;
+//         #10;
 
-        sel_acc = 0;
-        #10;
+//         sel_acc = 0;
+//         #10;
 
-        $finish;
-    end
+//         $finish;
+//     end
 
-endmodule
-
+// endmodule

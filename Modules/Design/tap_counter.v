@@ -31,46 +31,46 @@ endmodule
 
 /************TESTBENCH************/
 
-`timescale 1ns/1ps
+// `timescale 1ns/1ps
 
-module tb_tap_counter;
+// module tap_counter_tb;
 
-    parameter K = 8;
+//     parameter K = 8;
 
-    reg clk, rst, start, enable;
-    wire [$clog2(K)-1:0] tap_index;
-    wire last_cycle;
+//     reg clk, rst, start, enable;
+//     wire [$clog2(K)-1:0] tap_index;
+//     wire last_cycle;
 
-    always #5 clk = ~clk;
+//     always #5 clk = ~clk;
 
-    tap_counter #(.K(K)) dut (
-        .clk(clk),
-        .rst(rst),
-        .start(start),
-        .enable(enable),
-        .tap_index(tap_index),
-        .last_cycle(last_cycle)
-    );
+//     tap_counter #(.K(K)) dut (
+//         .clk(clk),
+//         .rst(rst),
+//         .start(start),
+//         .enable(enable),
+//         .tap_index(tap_index),
+//         .last_cycle(last_cycle)
+//     );
 
-    initial begin
-        clk = 0;
-        rst = 1;
-        start = 0;
-        enable = 0;
+//     initial begin
+//         clk = 0;
+//         rst = 1;
+//         start = 0;
+//         enable = 0;
 
-        #20 rst = 0;
+//         #20 rst = 0;
 
-        @(posedge clk);
-        start = 1;
-        enable = 1;
+//         @(posedge clk);
+//         start = 1;
+//         enable = 1;
 
-        @(posedge clk);
-        start = 0;
+//         @(posedge clk);
+//         start = 0;
 
-        repeat (10) @(posedge clk);
+//         repeat (10) @(posedge clk);
 
-        enable = 0;
-        #20 $finish;
-    end
+//         enable = 0;
+//         #20 $finish;
+//     end
 
-endmodule
+// endmodule
