@@ -90,7 +90,7 @@ module fir_datapath #(
     // ROM de coeficientes
     // ======================================================
 
-    reg signed [CW-1:0] coeff_rom;
+    wire signed [CW-1:0] coeff_rom;
 
     rom #(
         .NUM_TAPS(K),
