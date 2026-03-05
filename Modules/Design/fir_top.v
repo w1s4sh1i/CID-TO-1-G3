@@ -1,12 +1,18 @@
-/*******************************************************
-Arquitetura geral
+/*
 
-Parâmetros do Projeto:
-parameter K  = 8;    // número de taps (mínimo 8)
-parameter DW = 8;    // largura da entrada x
-parameter CW = 8;    // largura coeficientes h
+# O Módulo Top é o bloco principal do projeto.
+-> Conecta todos os outros módulos;
+-> Organiza a arquitetura completa;
+-> É a interface externa do sistema;
 
-Unidade de Controle (FSM)
+# Arquitetura geral
+
+## Parâmetros do Projeto:
+->	K  = 8;    // número de taps (mínimo 8)
+->	DW = 8;    // largura da entrada x
+->	CW = 8;    // largura coeficientes h
+
+## Unidade de Controle (FSM)
 -> IDLE
 -> CAPTURE
 -> SHIFT
@@ -31,47 +37,42 @@ O módulo top conecta a unidade de controle e a unidade de dados.
 A unidade de dados contém o shift register, ROM de coeficientes e a unidade MAC.
 Essa divisão garante modularidade e reutilização de hardware conforme exigido.
 
-*******************************************************************************/   
+## Sequência do MAC 
 
-/**********************************************************************
-O Módulo Top é o bloco principal do projeto.
--> Conecta todos os outros módulos
--> Organiza a arquitetura completa
--> É a interface externa do sistema
+Ciclo	     Ação
+-----------------------------------------------
+1	        shift_en = 1 (entra x[n])
+2	        acc_clear = 1, tap_index = 0
+3 → K+2	    mac_en = 1, tap_en = 1
+Último      data_valid = 1
 
-**********************************************************************/
+*/
 
 module fir_top #(
-    parameter K  = 8,
-    parameter DW = 8,
-    parameter CW = 8
+    parameter	K  = 8,
+				DW = 8,
+				CW = 8
 )(
-    input  wire clk,
-    input  wire rst,
-    input  wire start,
-    input  wire signed [DW-1:0] x_in,
-    output wire signed [DW+CW+$clog2(K):0] y_out,
-    output wire data_valid
+    input  clk,
+    input  rst,
+    input  start,
+    input  signed [DW-1:0] x_in,
+    output signed [DW+CW+$clog2(K):0] y_out,
+    output data_valid
 );
 
-    // ===============================
     // Sinais de controle
-    // ===============================
 
     wire shift_en;
     wire mac_en;
     wire acc_clear;
     wire tap_en;
 
-    // ===============================
     // Tap index
-    // ===============================
 
     wire [$clog2(K)-1:0] tap_index;
 
-    // ===============================
     // FSM de Controle
-    // ===============================
 
     fir_control #(
         .K(K)
@@ -87,9 +88,7 @@ module fir_top #(
         .tap_index  (tap_index)
     );
 
-    // ===============================
     // Datapath FIR
-    // ===============================
 
     fir_datapath #(
         .K (K),
@@ -109,16 +108,3 @@ module fir_top #(
     );
 
 endmodule
-
-
-/**********************************************************************
-Sequência do MAC 
-
-Ciclo	     Ação
------------------------------------------------
-1	        shift_en = 1 (entra x[n])
-2	        acc_clear = 1, tap_index = 0
-3 → K+2	    mac_en = 1, tap_en = 1
-Último      data_valid = 1
-
-/*********************************************************************/

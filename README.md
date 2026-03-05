@@ -89,4 +89,10 @@ partir de arquivos externos.
 
 ## Version
 
-> 1.5
+> 1.7
+
+## Colaboradores
+
+<a href="https://github.com/w1s4sh1i/CID-TO-1-G3/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=w1s4sh1i/CID-TO-1-G3" />
+</a>

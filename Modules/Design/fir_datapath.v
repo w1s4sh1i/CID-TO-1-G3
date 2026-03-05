@@ -1,44 +1,44 @@
-/*******************************************************************************
+/*
 Datapath é o bloco responsável por:
-Fazer todas as operações matemáticas do filtro FIR
+	Fazer todas as operações matemáticas do filtro FIR
 Contém:
-Shift register (linha de atraso)
-ROM coeficientes
-MUX seleção tap
-Multiplicador
-Somador
-Acumulador
-Registrador de saída
-/******************************************************************************/
+
+└── fir_datapath
+	├──	Shift register (linha de atraso)
+	├──	ROM coeficientes
+	├──	MUX seleção tap
+	├──	Multiplicador
+	├──	Somador
+	├──	Acumulador
+	└──	Registrador de saída
+*/
 
 module fir_datapath #(
-    parameter K  = 8,
-    parameter DW = 8,
-    parameter CW = 8
+    parameter	K  = 8,
+				DW = 8,
+				CW = 8
 )(
-    input  wire clk,
-    input  wire rst,
+    input  clk,
+    input  rst,
 
     // Controle da FSM
-    input  wire shift_en,
-    input  wire mac_en,
-    input  wire acc_clear,
-    input  wire start,
-    input  wire tap_en,
+    input  shift_en,
+    input  mac_en,
+    input  acc_clear,
+    input  start,
+    input  tap_en,
 
     // Dados
-    input  wire signed [DW-1:0] x_in,
+    input  signed [DW-1:0] x_in,
 
     // Saída
     output reg signed [DW+CW+$clog2(K):0] y_out
 );
 
-    localparam PW = DW + CW;
-    localparam AW = PW + $clog2(K) + 1;
+    localparam	PW = DW + CW,
+    			AW = PW + $clog2(K) + 1;
 
-    // ======================================================
     // Shift Register
-    // ======================================================
 
     wire signed [K*DW-1:0] taps_bus;
 
@@ -53,9 +53,7 @@ module fir_datapath #(
         .taps_out (taps_bus)
     );
 
-    // ======================================================
     // Tap Counter
-    // ======================================================
 
     wire [$clog2(K)-1:0] tap_index;
     wire last_cycle;
@@ -71,9 +69,7 @@ module fir_datapath #(
         .last_cycle(last_cycle)
     );
 
-    // ======================================================
     // Data Selector (MUX de taps)
-    // ======================================================
 
     wire signed [DW-1:0] sample;
 
@@ -86,9 +82,7 @@ module fir_datapath #(
         .data_out (sample)
     );
 
-    // ======================================================
-    // ROM de coeficientes
-    // ======================================================
+	// ROM de coeficientes
 
     wire signed [CW-1:0] coeff_rom;
 
@@ -100,16 +94,12 @@ module fir_datapath #(
         .coeff(coeff_rom)
     );
 
-    // ======================================================
     // Multiplicador
-    // ======================================================
 
     wire signed [PW-1:0] product;
     assign product = sample * coeff_rom;
 
-    // ======================================================
     // Acumulador + ACC_MUX
-    // ======================================================
 
     reg signed [AW-1:0] acc_reg;
     wire signed [AW-1:0] acc_sum;
@@ -127,16 +117,14 @@ module fir_datapath #(
 
     always @(posedge clk or posedge rst) begin
         if (rst)
-            acc_reg <= '0;
+            acc_reg <= 1'b0;
         else if (acc_clear)
-            acc_reg <= '0;
+            acc_reg <= 1'b0;
         else
             acc_reg <= acc_next;
     end
 
-    // ======================================================
-    // Latch da saída
-    // ======================================================
+   // Latch da saída
 
     always @(posedge clk) begin
         if (mac_en && last_cycle)
