@@ -24,18 +24,19 @@ TODO
 
 module fir_top_tb;
 
-    parameter K  = 8;
-    parameter DW = 8;
-    parameter CW = 8;
-
+    localparam 	K = 8,
+    			DW = 8,
+    		 	CW = 8,
+				PW = DW + CW,
+    			AW = PW + $clog2(K) + 1;
+    
     reg clk, rst, start;
     reg signed [DW-1:0] x_in;
     wire data_valid;
     wire [2:0] tap_index;
     wire signed [DW+CW+$clog2(K):0] y_out;
 
-    integer i;
-    integer errors;
+    integer i, errors, n;
 
     fir_top #(
         .K(K),
@@ -54,14 +55,12 @@ module fir_top_tb;
     reg signed [DW-1:0] x_ref [0:K-1];
     reg signed [CW-1:0] coeff_ref [0:K-1];
 
-    integer n;
-    localparam PW = DW + CW;
-    localparam AW = PW + $clog2(K) + 1;
     reg signed [AW-1:0] y_expected;
 
+	// always #5 clk = ~clk; // and initial clk = 1'b0; 
     initial begin
-        clk = 0;
-        forever #5 clk = ~clk;
+        clk = 1'b0;
+        forever #5 clk = ~clk; // Evitar
     end
     
     // - [X] Adicionar um dump e reconfigurar 
@@ -80,18 +79,18 @@ module fir_top_tb;
     
     	// [ ] Especificar quais testes estão sendo realizados; 
         errors = 0;
-        rst = 1;
-        start = 0;
+        rst = 1'b1;
+        start = 1'b0;
 
         $display("Starting fir_top Self-Checking Testbench");
 
         // teste de reset, ao mudar de 0 para 1, não deve ter resultado na saida y_out
 
         #10; 
-        rst = 0;
+        rst = 1'b0;
 
         #10
-        rst = 1;
+        rst = 1'b1;
 
         if (y_out || data_valid) begin
             $display("ERROR: Saídas incorretas após reset");
@@ -103,7 +102,7 @@ module fir_top_tb;
 
         // teste de funcionamento genérico, entro com valores e comparo com a saída esperada do datapath
         #20;
-        rst = 0;
+        rst = 1'b0;
 
         // Inicializa modelo referência
         for (i = 0; i < K; i = i + 1)
@@ -113,9 +112,7 @@ module fir_top_tb;
         for (i = 0; i < K; i = i + 1)
             coeff_ref[i] = 1;
 
-        // ==========================
         // Loop de testes
-        // ==========================
         for (n = 0; n < 10; n = n + 1) begin
 
             // Gera amostra aleatória
@@ -133,12 +130,11 @@ module fir_top_tb;
 
             #10;
 
-
             // pulso para incializar a maquina de estado na descida do clock para evitar conflito com com a maquina de estado
             @(negedge clk);
-            start = 1;
+            start = 1'b1;
             @(negedge clk);
-            start = 0;
+            start = 1'b0;
 
             // aguarda a maquina de estado sinalizar o processamento
             while (data_valid != 1'b1) begin
@@ -149,8 +145,6 @@ module fir_top_tb;
             $display("Entrada = %0d | Esperado = %0d | Obtido = %0d", x_in, y_expected, y_out);
             if (^y_out === 1'bx)
                 $display("y_out contém X no tempo %0t", $time);
-
-
 
             // Comparação automática
             if (y_out !== y_expected) begin

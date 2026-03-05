@@ -10,9 +10,9 @@ TODO
 
 module fir_datapath_tb;
 
-	parameter K  = 8;
-	parameter DW = 8;
-	parameter CW = 8;
+	localparam	K  = 8,
+				DW = 8,
+				CW = 8;
 
 	localparam AW = DW + CW + $clog2(K) + 1;
 
@@ -107,25 +107,25 @@ module fir_datapath_tb;
 
 		    // inicia DUT
 		    @(posedge clk);
-		    shift_en  = 1;
-		    acc_clear = 1;
-		    start     = 1;
+		    shift_en  = 1'b1;
+		    acc_clear = 1'b1;
+		    start     = 1'b1;
 		    x_in      = sample;
 
 		    @(posedge clk);
-		    shift_en  = 0;
-		    acc_clear = 0;
-		    start     = 0;
+		    shift_en  = 1'b0;
+		    acc_clear = 1'b0;
+		    start     = 1'b0;
 
 		    for (i = 0; i < K; i = i + 1) begin
 		        @(posedge clk);
-		        mac_en = 1;
-		        tap_en = 1;
+		        mac_en = 1'b1;
+		        tap_en = 1'b1;
 		    end
 
 		    @(posedge clk);
-		    mac_en = 0;
-		    tap_en = 0;
+		    mac_en = 1'b0;
+		    tap_en = 1'b0;
 		end
 	endtask
 
@@ -153,17 +153,17 @@ module fir_datapath_tb;
 	initial begin
 	
 		// [ ] Especificar quais testes estão sendo realizados; 
-		clk = 0;
-		rst = 1;
+		clk = 1'b0;
+		rst = 1'b1;
 
-		shift_en = 0;
-		mac_en = 0;
-		acc_clear = 0;
-		start = 0;
-		tap_en = 0;
-		x_in = 0;
+		shift_en = 1'b0;
+		mac_en = 1'b0;
+		acc_clear = 1'b0;
+		start = 1'b0;
+		tap_en = 1'b0;
+		x_in = 1'b0;
 
-		#20 rst = 0;
+		#20 rst = 1'b0;
 
 		// impulso
 		send(1);

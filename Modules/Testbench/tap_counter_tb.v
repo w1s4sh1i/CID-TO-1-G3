@@ -12,8 +12,8 @@ TODO
 module tap_counter_tb;
 
   // Parâmetros
-  parameter K = 8;
-  parameter CLK_PERIOD = 10; // 100MHz
+  localparam	K = 8,
+  				CLK_PERIOD = 10; // 100MHz
 
   // Sinais do Testbench
   reg clk;
@@ -24,7 +24,7 @@ module tap_counter_tb;
   wire last_cycle;
 
   // Instância da Unidade Sob Teste (UUT)
-  tap_counter #( .K(K) ) uut (.*);
+  tap_counter #( .K(K) ) uut (.*); // Evitar declaração -> interligar
 
   // Geração do Clock
   always #(CLK_PERIOD/2) clk = ~clk;
@@ -46,12 +46,13 @@ module tap_counter_tb;
   // Procedimento de Teste
   initial begin
     // Inicialização
-    clk = 0;
-    rst = 1;
-    start = 0;
-    enable = 0;
+    clk = 1'b0;
+    rst = 1'b1;
+    start = 1'b0;
+    enable = 1'b0;
 
 
+	// Reconfigurar no monitor
     $display("------------------------------------------------");
     $display(" Time | start | enable | tap_index | last_cycle");
     $display("------------------------------------------------");
@@ -70,9 +71,7 @@ module tap_counter_tb;
     enable = 1; // Habilita a contagem
 
     @(posedge clk);
-
-            repeat (8) @(posedge clk);
-
+		repeat (8) @(posedge clk);
 
     $finish;
   end

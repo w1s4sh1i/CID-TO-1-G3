@@ -11,8 +11,8 @@ TODO
 
 module mux_taps_tb;
 
-    parameter DATA_WIDTH = 8;
-    parameter NUM_TAPS   = 8;
+    localparam	DATA_WIDTH = 8,
+    			NUM_TAPS   = 8;
 
     reg  [NUM_TAPS*DATA_WIDTH-1:0] taps_in;
     reg  [$clog2(NUM_TAPS)-1:0]    tap_index;
@@ -28,8 +28,7 @@ module mux_taps_tb;
         .data_out(data_out)
     );
 
-    integer i;
-    integer errors;
+    integer i, errors;
 
     reg signed [DATA_WIDTH-1:0] tap_mem [0:NUM_TAPS-1];
     
@@ -44,7 +43,7 @@ module mux_taps_tb;
 
         errors = 0;
 
-        $readmemb("../dataset-tests/test_mux_taps.txt", tap_mem);
+        $readmemb("../dataset-tests/test_mux_taps.txt", tap_mem); // Analisar funcionamento
 
         taps_in = 0;
         for (i = 0; i < NUM_TAPS; i = i + 1) begin
@@ -66,9 +65,7 @@ module mux_taps_tb;
             end
         end
 
-        // ----------------------------------------
         // Resultado final
-        // ----------------------------------------
         if (errors == 0)
             $display("TEST PASSED");
         else

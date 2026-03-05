@@ -1,56 +1,60 @@
-// =======================================================
-//  ACCUMULATOR MUX (MUX DO ACUMULADOR)
-//  Controla o valor carregado no acumulador do MAC
-//  Permite limpar ou acumular durante o processamento
-// =======================================================
+/*
+  ACCUMULATOR MUX (MUX DO ACUMULADOR)
+  Controla o valor carregado no acumulador do MAC
+  Permite limpar ou acumular durante o processamento
+*/
 
 module acc_mux #(  
     parameter ACC_WIDTH = 19 // Largura do acumulador, deve incluir bits de guarda para evitar overflow (exigência do projeto)
 )(
-    input  wire signed [ACC_WIDTH-1:0] sum_in, // Entrada do somador (ACC + produto), representa o novo valor acumulado
-    input  wire sel_acc,                       // Sinal de controle vindo da FSM, 0 → limpar acumulador, 1 → acumular normalmente
-    output wire signed [ACC_WIDTH-1:0] acc_in  // Valor que será carregado no registrador do acumulador
+	input  sel_acc,                       	// Sinal de controle vindo da FSM, 0 → limpar acumulador, 1 → acumular normalmente
+    input  signed [ACC_WIDTH-1 : 0] sum_in, // Entrada do somador (ACC + produto), representa o novo valor acumulado
+    output signed [ACC_WIDTH-1 : 0] acc_in  // Valor que será carregado no registrador do acumulador
 );
-
     // Operação combinacional simples, Se sel_acc for 1 → passa a soma / Se sel_acc for 0 → força zero (limpeza)
     assign acc_in = (sel_acc) ? sum_in : {ACC_WIDTH{1'b0}};
 
 endmodule
 
+// [ ] Enviar código para o testbench;
 
-/************TESTBENCH************/
+/*
 
-// `timescale 1ns/1ps
+// TESTBENCH
 
-// module acc_mux_tb;
+	`timescale 1 ns / 1 ps
 
-//     parameter ACC_WIDTH = 19;
+	module acc_mux_tb;
 
-//     reg  signed [ACC_WIDTH-1:0] sum_in;
-//     reg  sel_acc;
-//     wire signed [ACC_WIDTH-1:0] acc_in;
+	localparam  ACC_WIDTH = 19, DELAY = 10; 
+	
+	reg  sel_acc;
+	reg  signed [ACC_WIDTH-1:0] sum_in;
+	wire signed [ACC_WIDTH-1:0] acc_in;
 
-//     acc_mux #(.ACC_WIDTH(ACC_WIDTH)) dut (
-//         .sum_in(sum_in),
-//         .sel_acc(sel_acc),
-//         .acc_in(acc_in)
-//     );
+	acc_mux #(.ACC_WIDTH(ACC_WIDTH)) dut (
+		.sum_in(sum_in),
+		.sel_acc(sel_acc),
+		.acc_in(acc_in)
+	);
 
-//     initial begin
-//         sum_in  = 19'sd123;
-//         sel_acc = 0;
-//         #10;
+	initial begin
+		// Descrever os testes realizados
+		sum_in  = 19'sd123;
+		sel_acc = 1'b0;
+		#DELAY;
 
-//         sel_acc = 1;
-//         #10;
+		sel_acc = 1'b1;
+		#DELAY;
 
-//         sum_in = 19'sd456;
-//         #10;
+		sum_in = 19'sd456;
+		#DELAY;
 
-//         sel_acc = 0;
-//         #10;
+		sel_acc = 1'b0;
+		#DELAY;
 
-//         $finish;
-//     end
+		$finish;
+	end
 
-// endmodule
+endmodule
+*/

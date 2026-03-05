@@ -34,7 +34,7 @@ module fir_control_tb;
     );
 
     initial begin
-        clk = 0;
+        clk = 1'b0;
         forever #5 clk = ~clk;
     end
     
@@ -55,14 +55,14 @@ module fir_control_tb;
     initial begin
     
     	// [ ] Especificar quais testes estão sendo realizados; 
-        errors = 0;
-        rst = 1;
-        start = 0;
+        errors = 1'b0;
+        rst = 1'b1;
+        start = 1'b0;
 
         $display("Starting FIR_control Self-Checking Testbench");
 
         @(negedge clk);
-        rst = 0;
+        rst = 1'b0;
 
         @(negedge clk);
         if (shift_en || mac_en || acc_clear || data_valid) begin
@@ -74,9 +74,9 @@ module fir_control_tb;
 
         // muda duas vezes para gerar um pulso e inicializar a maquina de estado uma vez apenas
         @(negedge clk);
-        start = 1;
+        start = 1'b1;
         @(negedge clk);
-        start = 0;
+        start = 1'b0;
 
         while (acc_clear != 1'b1)
             @(negedge clk);
@@ -98,9 +98,9 @@ module fir_control_tb;
         end
 
         @(negedge clk);
-        start = 1;
+        start = 1'b1;
         @(negedge clk);
-        start = 0;
+        start = 1'b0;
 
         $display("TESTE: Start durante o process");
         repeat(5) @(posedge clk);
