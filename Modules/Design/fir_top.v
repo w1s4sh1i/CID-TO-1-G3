@@ -83,8 +83,8 @@ module fir_top #(
         // .tap_en     (tap_en), -> Sem tap_en no fir_control
         .acc_clear  (acc_clear),
         .mac_en     (mac_en),
-        .data_valid (data_valid)
-        .tap_index  (tap_index),
+        .data_valid (data_valid),
+        .tap_index  (tap_index)
     );
 
     // ===============================

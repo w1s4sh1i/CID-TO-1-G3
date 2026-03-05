@@ -97,6 +97,19 @@ module fir_control_tb;
             i = i + 1;
         end
 
+        @(negedge clk);
+        start = 1;
+        @(negedge clk);
+        start = 0;
+
+        $display("TESTE: Start durante o process");
+        repeat(5) @(posedge clk);
+        if (acc_clear == 1'b1) begin
+            $display("ERROR: O start inicializou a maquina de estado durante o process");
+        end else begin
+            $display("OK: O start não inicializou a maquina de estado durante o process");
+        end
+
         if (i != K+1) begin
             $display("ERROR: PROCESS executou número errado de ciclos, esperado %0d obtido %0d", K+1, i);
             errors = errors + 1;
