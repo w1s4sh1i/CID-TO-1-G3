@@ -1,18 +1,19 @@
 /*
 TODO
 
+- [x] Change $stop by $finish;
 - [ ] Adicionar um dump e reconfigurar 
 - [ ] Adicionar clock por instância;  
+- [ ] Importar configurações e arquivos
+
 */
 `timescale 1 ns / 1 ps
 
-// [ ] Importar configurações e arquivos
-// [x] Change $stop by $finish;
-
 module mux_taps_tb;
 
-    localparam	DATA_WIDTH = 8,
-    			NUM_TAPS   = 8;
+    localparam	DATA_WIDTH	= 8,
+    			NUM_TAPS	= 8,
+    			DELAY		= 5;
 
     reg  [NUM_TAPS*DATA_WIDTH-1:0] taps_in;
     reg  [$clog2(NUM_TAPS)-1:0]    tap_index;
@@ -31,14 +32,26 @@ module mux_taps_tb;
     integer i, errors;
 
     reg signed [DATA_WIDTH-1:0] tap_mem [0:NUM_TAPS-1];
-    
-    // Adicionar $monitor and dump; 
+	
+	// - [X] Adicionar um dump e reconfigurar 
+	initial begin
+		
+		// Specify the VCD file name
+		$dumpfile("CIDI-SD192-fir-mux_taps.vcd"); 
+		$dumpvars(0, fir_top_tb); 
 
-	// - [ ] Adicionar um dump e reconfigurar 
+		// Editar
+		$display("|TIME |RESET |START |X-IN |DATA-VALID |TAP-INDEX |Y-OUT |"); // formatar saída vísível no terminal
+		$monitor("|%0t |%b |%b |%b |%b |%b |%b |", 
+			$time, rst, start, x_in, data_valid, tap_index, y_out;
+		); 
+	end
 		
 	
     initial begin
-
+		
+		
+		// [ ] Especificar quais testes estão sendo realizados; 
         $display("<< Starting mux_taps Self-Checking Testbench >>");
 
         errors = 0;
@@ -46,6 +59,7 @@ module mux_taps_tb;
         $readmemb("../dataset-tests/test_mux_taps.txt", tap_mem); // Analisar funcionamento
 
         taps_in = 0;
+        
         for (i = 0; i < NUM_TAPS; i = i + 1) begin
             taps_in[i*DATA_WIDTH +: DATA_WIDTH] = tap_mem[i];
         end
@@ -53,7 +67,7 @@ module mux_taps_tb;
         // Testa todos os índices
         for (i = 0; i < NUM_TAPS; i = i + 1) begin
             tap_index = i;
-            #5; // sleep para estabilizar
+            #DELAY; // sleep para estabilizar
 
             // compara a saida do mux com o resultado esperado que foi lido do txt
             if (data_out !== tap_mem[i]) begin

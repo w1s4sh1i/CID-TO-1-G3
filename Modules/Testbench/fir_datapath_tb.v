@@ -12,14 +12,13 @@ module fir_datapath_tb;
 
 	localparam	K  = 8,
 				DW = 8,
-				CW = 8;
+				CW = 8,
+				AW = DW + CW + $clog2(K) + 1;
 
-	localparam AW = DW + CW + $clog2(K) + 1;
-
-	reg clk, rst;
-	reg shift_en, mac_en, acc_clear, start, tap_en;
-	reg signed [DW-1:0] x_in;
-	wire signed [DW+CW+$clog2(K):0] y_out;
+	reg		clk, rst;
+	reg		shift_en, mac_en, acc_clear, start, tap_en;
+	reg		signed [DW-1:0] x_in;
+	wire	signed [DW+CW+$clog2(K):0] y_out;
 
 	fir_datapath #(
 		.K(K),
@@ -46,10 +45,10 @@ module fir_datapath_tb;
 		$dumpfile("CIDI-SD192-fir-datapath.vcd"); 
 		$dumpvars(0, fir_datapath_tb); 
 
-		// Editar
-		$display("|TIME | |"); // formatar saída vísível no terminal
-		$monitor("|%0t | |", 
-			  $time, 
+		// Terminal view
+		$display("|TIME |RESET |SHIFT-EN |MAC-EN |ACC-CLEAR |START |X-IN |Y-OUT |"); // formatar saída vísível no terminal
+		$monitor("|%0t |%b |%b |%b |%b |%b |%b |%b |%b |", 
+			  $time, rst, shift_en, mac_en, acc_clear, start, tap_en, x_in, y_out;
 		); 
 	end
 
@@ -62,7 +61,7 @@ module fir_datapath_tb;
 	integer i;
 
 	initial begin
-		$readmemh("coeffs.mem", coeffs); // ???
+		$readmemh("coeffs.mem", coeffs); // ??? coeffs.txt
 		for (i = 0; i < K; i = i + 1)
 		    samples[i] = 0;
 	end
@@ -153,6 +152,7 @@ module fir_datapath_tb;
 	initial begin
 	
 		// [ ] Especificar quais testes estão sendo realizados; 
+		
 		clk = 1'b0;
 		rst = 1'b1;
 
@@ -163,7 +163,8 @@ module fir_datapath_tb;
 		tap_en = 1'b0;
 		x_in = 1'b0;
 
-		#20 rst = 1'b0;
+		#20 
+		rst = 1'b0;
 
 		// impulso
 		send(1);

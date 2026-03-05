@@ -1,5 +1,4 @@
 /*
-/------------------------------------------------
 
 testbench incompleta ainda, mas criei ela para ter um primeiro teste de todo o projeto,
 usei o testbench q está no deprecated como base para passar pelo datapath
@@ -10,17 +9,13 @@ achar esse possivel problema já vale a testbench
 
 mas para o primeiro teste, está inicializando a máquina de estado e o datapath
 
-/------------------------------------------------
-
 TODO
-
-- [ ] Adicionar um dump e reconfigurar 
+- [x] Change $stop by $finish;
+- [x] Adicionar um dump e reconfigurar exibição de informação 
 - [ ] Adicionar clock por instância;  
+- [ ] Importar configurações e arquivos
 */
 `timescale 1 ns / 1 ps
-
-// [ ] Importar configurações e arquivos
-// [x] Change $stop by $finish;
 
 module fir_top_tb;
 
@@ -28,7 +23,8 @@ module fir_top_tb;
     			DW = 8,
     		 	CW = 8,
 				PW = DW + CW,
-    			AW = PW + $clog2(K) + 1;
+    			AW = PW + $clog2(K) + 1,
+    			DELAY = 5;
     
     reg clk, rst, start;
     reg signed [DW-1:0] x_in;
@@ -51,18 +47,14 @@ module fir_top_tb;
         .data_valid(data_valid)
     );
 
-    // teste 1
+    // teste 1 - Adicionar no monitor
     reg signed [DW-1:0] x_ref [0:K-1];
     reg signed [CW-1:0] coeff_ref [0:K-1];
 
     reg signed [AW-1:0] y_expected;
 
-	// always #5 clk = ~clk; // and initial clk = 1'b0; 
-    initial begin
-        clk = 1'b0;
-        forever #5 clk = ~clk; // Evitar
-    end
-    
+	always #5 clk = ~clk;
+ 
     // - [X] Adicionar um dump e reconfigurar 
 	initial begin
 		
@@ -71,12 +63,16 @@ module fir_top_tb;
 		$dumpvars(0, fir_top_tb); 
 
 		// Editar
-		$display("|TIME | |"); // formatar saída vísível no terminal
-		$monitor("|%0t | |", $time,); 
+		$display("|TIME |RESET |START |X-IN |DATA-VALID |TAP-INDEX |Y-OUT |"); // formatar saída vísível no terminal
+		$monitor("|%0t |%b |%b |%b |%b |%b |%b |", 
+			$time, rst, start, x_in, data_valid, tap_index, y_out;
+		); 
 	end
 
     initial begin
-    
+    	
+    	clk = 1'b0;
+    	
     	// [ ] Especificar quais testes estão sendo realizados; 
         errors = 0;
         rst = 1'b1;
@@ -86,10 +82,10 @@ module fir_top_tb;
 
         // teste de reset, ao mudar de 0 para 1, não deve ter resultado na saida y_out
 
-        #10; 
+        #(DELAY*2); 
         rst = 1'b0;
 
-        #10
+        #(DELAY*2);
         rst = 1'b1;
 
         if (y_out || data_valid) begin
@@ -101,7 +97,7 @@ module fir_top_tb;
 
 
         // teste de funcionamento genérico, entro com valores e comparo com a saída esperada do datapath
-        #20;
+        #(DELAY*4);
         rst = 1'b0;
 
         // Inicializa modelo referência
@@ -157,7 +153,6 @@ module fir_top_tb;
             end
 
         end
-
 
         if (errors == 0)
             $display("\n==== TEST PASSED ====\n");

@@ -1,24 +1,23 @@
 /*
 TODO
 
-- [ ] Adicionar um dump e reconfigurar 
+- [X] Adicionar um dump e reconfigurar 
+- [x] Change $stop by $finish;
 - [ ] Adicionar clock por instância;  
+- [ ] Importar configurações e arquivos
 */
-`timescale 1 ns / 1 ps
 
-// [ ] Importar configurações e arquivos
-// [x] Change $stop by $finish;
+`timescale 1 ns / 1 ps
 
 module fir_control_tb;
 
-    parameter K = 3;
+    localparam K = 3, DELAY = 5;
 
     reg clk, rst, start;
     wire shift_en, acc_clear, mac_en, data_valid;
     wire [2:0] tap_index;
 
-    integer i;
-    integer errors;
+    integer i, errors;
 
     fir_control #(
         .K(K) 
@@ -33,27 +32,26 @@ module fir_control_tb;
         .tap_index(tap_index)
     );
 
-    initial begin
-        clk = 1'b0;
-        forever #5 clk = ~clk;
-    end
+	always #DELAY clk = ~clk;
     
-    // - [X] Adicionar um dump e reconfigurar 
+    // - [X] Adicionar um dump e reconfigurar exibição de informação 
 	initial begin
 		
 		// Specify the VCD file name
-		$dumpfile("CIDI-SD192-fir-controll.vcd"); 
+		$dumpfile("CIDI-SD192-fir-control.vcd"); 
 		$dumpvars(0, fir_control_tb); 
 
-		// Editar
-		$display("|TIME | |"); // formatar saída vísível no terminal
-		$monitor("|%0t | |", 
-			  $time, 
+		// Terminal view
+		$display("|TIME |RESET |START |SHIFT-EN |ACC CLEAR |MAC-EN |DATA-VALID |TAP-INDEX |"); // formatar saída vísível no terminal
+		$monitor("|%0t |%b |%b |%b |%b |%b |%b |%b |", 
+			  $time, rst, start, shift_en, acc_clear, mac_en, data_valid, tap_index;
 		); 
 	end
 
     initial begin
-    
+    	
+    	clk = 1'b0; 
+ 
     	// [ ] Especificar quais testes estão sendo realizados; 
         errors = 1'b0;
         rst = 1'b1;
@@ -86,6 +84,7 @@ module fir_control_tb;
             @(negedge clk);
         $display("OK: SHIFT detectado");
 
+		//
         i = 1;
         while (mac_en == 1'b1) begin
 
