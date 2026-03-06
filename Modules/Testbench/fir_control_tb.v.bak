@@ -8,17 +8,6 @@ TODO
 - [ ] Importar configurações e arquivos
 */
 
-/*
-Descrição dos testes:
-teste 1: ativo o RESET para verificar se a maquina de estado inicializa as saidas com 0, ou seja está parada
-teste 2: ativo a maquina de estado com o sinal 0, para verificar se ela continua parada como deveria
-teste 3: ativo a maquina de estado com o pulso de start, (mudo de 0 para 1 e para 0 de novo) e verifico os sinais de enable
-         para validar se a maquina de estado está alternando corretamente entre os estados
-teste 4: inicializo a maquina de estado com um pulso de start e espero ela chegar no estado de process, dentro dele
-         disparo outro pulso de start e verifico se ativou o sinal de enable do primeiro estado durante um tempo de de
-         10 clocks
-*/
-
 `timescale 1 ns / 1 ps
 
 module fir_control_tb;
@@ -122,6 +111,20 @@ module fir_control_tb;
             i = i + 1;
         end
 
+/*
+        @(negedge clk);
+        start = 1'b1;
+        @(negedge clk);
+        start = 1'b0;
+
+        $display("TESTE: Start durante o process");
+        repeat(DELAY) @(posedge clk);
+        if (acc_clear == 1'b1) begin
+            $display("ERROR: O start inicializou a maquina de estado durante o process");
+        end else begin
+            $display("OK: O start não inicializou a maquina de estado durante o process");
+        end
+*/
         if (i != K+1) begin
             $display("ERROR: PROCESS executou número errado de ciclos, esperado %0d obtido %0d", K+1, i);
             errors = errors + 1;
@@ -134,8 +137,9 @@ module fir_control_tb;
         
         $display("\n--- Teste 4: START durante o PROCESS ---");
 
-	    while (mac_en != 1'b1)begin
+        while (mac_en != 1'b1)begin
             @(negedge clk);
+            i = i + 1;
         end
         
         @(negedge clk);
@@ -150,7 +154,7 @@ module fir_control_tb;
         end
 
         if (i==DELAY*2)
-            $display("OK: FSM não recomeçou");
+            $display("OK: FSM não recomeça");
         else
             $display("ERROR: FSM recomeçou com pulso de START durante o PROCESS");
 
