@@ -3,7 +3,7 @@
 module rom #(
     parameter NUM_TAPS   = 8,
     parameter COEFF_WIDTH = 8,
-    parameter FILE_NAME  = "coeffs/fir_coeffs.mem"
+    parameter FILE_NAME  = "fir_coeffs.mem"
 )(
     input  wire [$clog2(NUM_TAPS)-1:0] addr,
     output reg  signed [COEFF_WIDTH-1:0] coeff
