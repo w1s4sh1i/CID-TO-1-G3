@@ -23,11 +23,13 @@ teste 4: inicializo a maquina de estado com um pulso de start e espero ela chega
 
 module fir_control_tb;
 
-    localparam K = 3, DELAY = 5;
+    localparam  INDICE_TAP = 2, 
+                K = 8, 
+                DELAY = 5;
 
     reg clk, rst, start;
     wire shift_en, acc_clear, mac_en, data_valid;
-    wire [K-1:0] tap_index;
+    wire [$clog2(K)-1:0] tap_index;
 
     integer i;
     integer errors;
@@ -49,8 +51,7 @@ module fir_control_tb;
         clk = 1'b0;
         forever #5 clk = ~clk;
     end
-    
-    // - [X] Adicionar um dump e reconfigurar 
+
 	initial begin
 		
 		// Specify the VCD file name
@@ -72,11 +73,11 @@ module fir_control_tb;
 
         $display("Starting FIR_control Self-Checking Testbench");
 
-        @(negedge clk);
+        @(posedge clk);
         rst = 1'b0;
 
         $display("\n--- Teste 1: inicialização com RESET ---");
-        @(negedge clk);
+        @(posedge clk);
         if (shift_en || mac_en || acc_clear || data_valid) begin
             $display("ERROR: Saídas incorretas após reset");
             errors = errors + 1;
@@ -85,10 +86,10 @@ module fir_control_tb;
             $display("OK: reset funcionando");
 
         $display("\n--- Teste 2: IDDLE sem start ---");
-        @(negedge clk);
+        @(posedge clk);
         start = 1'b0;
         repeat(DELAY) @(posedge clk);
-        @(negedge clk);
+        @(posedge clk);
         if (shift_en || mac_en || acc_clear || data_valid) begin
             $display("ERROR: Saídas incorretas após START = 0");
             errors = errors + 1;
@@ -98,59 +99,72 @@ module fir_control_tb;
 
         $display("\n--- Teste 3: Inicia a máquina de estados com pulso de start ---");
         // muda duas vezes para gerar um pulso e inicializar a maquina de estado uma vez apenas
-        @(negedge clk);
+        @(posedge clk);
         start = 1'b1;
-        @(negedge clk);
+        @(posedge clk);
         start = 1'b0;
 
         while (acc_clear != 1'b1)
-            @(negedge clk);
+            @(posedge clk);
         $display("OK: CAPTURE detectado");
 
         while (shift_en != 1'b1)
-            @(negedge clk);
+            @(posedge clk);
         $display("OK: SHIFT detectado");
 
-        i = 1;
+        while (mac_en != 1'b1)
+            @(posedge clk);
+
+        i = 0;
+
         while (mac_en == 1'b1) begin
 
-            @(negedge clk);
-            if (tap_index !== i[2:0]) begin // trocar para K
+            if (tap_index !== i) begin
                 $display("ERROR: tap_index esperado %0d obtido %0d", i, tap_index);
                 errors = errors + 1;
             end
+
+            @(posedge clk);
+
             i = i + 1;
         end
 
-        if (i != K+1) begin
-            $display("ERROR: PROCESS executou número errado de ciclos, esperado %0d obtido %0d", K+1, i);
+        if (i != K) begin
+            $display("ERROR: PROCESS executou número errado de ciclos, esperado %0d obtido %0d", K, i);
             errors = errors + 1;
         end else
             $display("OK: PROCESS completo");
 
-        while (mac_en != 1'b1)
-            @(negedge clk);
+        while (data_valid != 1'b1)
+            @(posedge clk);
         $display("OK: DONE detectado");
-        
-        $display("\n--- Teste 4: START durante o PROCESS ---");
 
-	    while (mac_en != 1'b1)begin
-            @(negedge clk);
-        end
+        $display("\n--- Teste 4: START durante o PROCESS ---");
         
-        @(negedge clk);
+        @(posedge clk);
         start = 1'b1;
-        @(negedge clk);
+        @(posedge clk);
+        start = 1'b0;
+
+        // esperar o PROCESS
+        while (mac_en != 1'b1) begin
+            @(posedge clk);
+        end
+
+        // outro start
+        @(posedge clk);
+        start = 1'b1;
+        @(posedge clk);
         start = 1'b0;
 
         // trecho para verificar se ativou o acc_clear e aguardar alguns ciclos de clock
         i = 0;
         while (acc_clear != 1'b1 && i<DELAY*2) begin
-            @(negedge clk);
+            @(posedge clk);
             i = i + 1;
         end
 
-        if (i==DELAY*2)
+        if (acc_clear==0)
             $display("OK: FSM não recomeçou");
         else
             $display("ERROR: FSM recomeçou com pulso de START durante o PROCESS");
@@ -160,7 +174,6 @@ module fir_control_tb;
             $display("\n==== TEST PASSED ====\n");
         else
             $display("\n==== TEST FAILED (%0d errors) ====\n", errors);
-
 
         $finish;
     end
