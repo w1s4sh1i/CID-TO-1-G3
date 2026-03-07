@@ -131,14 +131,14 @@ module fir_top_tb;
             #10;
 
             // pulso para incializar a maquina de estado na descida do clock para evitar conflito com com a maquina de estado
-            @(negedge clk);
+            @(posedge clk);
             start = 1'b1;
-            @(negedge clk);
+            @(posedge clk);
             start = 1'b0;
 
             // aguarda a maquina de estado sinalizar o processamento
             while (data_valid != 1'b1) begin
-                @(negedge clk);
+                @(posedge clk);
             end
             
             // debugger

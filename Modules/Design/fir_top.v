@@ -83,7 +83,6 @@ module fir_top #(
     wire shift_en;
     wire mac_en;
     wire acc_clear;
-    wire tap_en;
 
     // ===============================
     // Tap index
@@ -102,7 +101,6 @@ module fir_top #(
         .rst        (rst),
         .start      (start),
         .shift_en   (shift_en),
-        .tap_en     (tap_en),
         .acc_clear  (acc_clear),
         .mac_en     (mac_en),
         .tap_index  (tap_index),

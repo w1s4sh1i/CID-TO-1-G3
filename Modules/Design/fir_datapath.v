@@ -102,8 +102,8 @@ module fir_datapath #(
 
     rom #(
         .NUM_TAPS   (K),
-        .COEFF_WIDTH(CW)
-        // .FILE_NAME  ("fir_coeffs.hex")
+        .COEFF_WIDTH(CW),
+        .FILE_NAME  ("fir_coeffs.mem")
     ) u_rom (
         .addr (tap_index),
         .coeff(coeff_rom)
@@ -132,12 +132,25 @@ module fir_datapath #(
 
     // ======================================================
     // REGISTRADOR DE SAÍDA
+    // Captura mac_out um ciclo APÓS o último MAC:
+    // - Quando mac_en=1 e tap_index=K-1, o MAC ainda está
+    //   calculando acc_out nesse mesmo posedge (acc_out <= sum).
+    // - No ciclo seguinte (estado DONE), acc_out já tem o
+    //   valor final e mac_out é lido corretamente.
     // ======================================================
+    reg last_mac;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            last_mac <= 1'b0;
+        else
+            last_mac <= mac_en && (tap_index == K-1);
+    end
 
     always @(posedge clk or posedge rst) begin
         if (rst)
             y_out <= 0;
-        else if (mac_en && (tap_index == K-1))
+        else if (last_mac)
             y_out <= mac_out;
     end
 

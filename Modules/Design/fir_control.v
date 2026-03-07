@@ -66,56 +66,46 @@ module fir_control #(
   end
 
   // =====================================================
-  // Lógica sequencial (saídas + contador)
+  // Contador de taps (sequencial)
   // =====================================================
 
   always @(posedge clk or posedge rst)
   begin
     if (rst)
-    begin
-      tap_index  <= 0;
-      shift_en   <= 0;
-      mac_en     <= 0;
-      acc_clear  <= 0;
-      data_valid <= 0;
-    end
+      tap_index <= 0;
     else
     begin
-
-      // Default (evita latch)
-      shift_en   <= 1'b0;
-      mac_en     <= 1'b0;
-      acc_clear  <= 1'b0;
-      data_valid <= 1'b0;
-
       case (state)
-
-        CAPTURE:
-        begin
-          acc_clear <= 1'b1;
-          tap_index <= 1'b0;   // garante início em 0
-        end
-
-        SHIFT:
-        begin
-          shift_en <= 1'b1;
-        end
-
+        CAPTURE: tap_index <= 0;
         PROCESS:
-        begin
-          mac_en <= 1'b1;
-
           if (tap_index < K-1)
             tap_index <= tap_index + 1;
-        end
-
-        DONE:
-        begin
-          data_valid <= 1;   // pulso de 1 ciclo
-        end
-
+        default: ;
       endcase
     end
+  end
+
+  // =====================================================
+  // Saídas combinacionais (Moore FSM)
+  // Cada saída é válida no mesmo ciclo do estado,
+  // eliminando o escorregamento de 1 ciclo que fazia
+  // mac_en chegar quando tap_index já era 1 (tap 0 pulado).
+  // =====================================================
+
+  always @(state)
+  begin
+    shift_en   = 1'b0;
+    mac_en     = 1'b0;
+    acc_clear  = 1'b0;
+    data_valid = 1'b0;
+
+    case (state)
+      CAPTURE: acc_clear  = 1'b1;
+      SHIFT:   shift_en   = 1'b1;
+      PROCESS: mac_en     = 1'b1;
+      DONE:    data_valid = 1'b1;
+      default: ;
+    endcase
   end
 
 endmodule
