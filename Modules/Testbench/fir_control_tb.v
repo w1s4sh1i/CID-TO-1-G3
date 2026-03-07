@@ -75,7 +75,7 @@ module fir_control_tb;
         @(negedge clk);
         rst = 1'b0;
 
-        $display("\n--- Teste 1: RESET assíncrono ---");
+        $display("\n--- Teste 1: inicialização com RESET ---");
         @(negedge clk);
         if (shift_en || mac_en || acc_clear || data_valid) begin
             $display("ERROR: Saídas incorretas após reset");
@@ -143,6 +143,7 @@ module fir_control_tb;
         @(negedge clk);
         start = 1'b0;
 
+        // trecho para verificar se ativou o acc_clear e aguardar alguns ciclos de clock
         i = 0;
         while (acc_clear != 1'b1 && i<DELAY*2) begin
             @(negedge clk);

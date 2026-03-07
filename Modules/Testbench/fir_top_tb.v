@@ -1,5 +1,4 @@
 /*
-/------------------------------------------------
 
 testbench incompleta ainda, mas criei ela para ter um primeiro teste de todo o projeto,
 usei o testbench q está no deprecated como base para passar pelo datapath
@@ -10,17 +9,15 @@ achar esse possivel problema já vale a testbench
 
 mas para o primeiro teste, está inicializando a máquina de estado e o datapath
 
-/------------------------------------------------
-
 TODO
-
-- [ ] Adicionar um dump e reconfigurar 
+- [x] Change $stop by $finish;
+- [x] Adicionar um dump e reconfigurar exibição de informação 
 - [ ] Adicionar clock por instância;  
+- [ ] Importar configurações e arquivos
+- [ ] Especificar quais testes estão sendo realizados; 
+
 */
 `timescale 1 ns / 1 ps
-
-// [ ] Importar configurações e arquivos
-// [x] Change $stop by $finish;
 
 module fir_top_tb;
 
@@ -28,7 +25,8 @@ module fir_top_tb;
     			DW = 8,
     		 	CW = 8,
 				PW = DW + CW,
-    			AW = PW + $clog2(K) + 1;
+    			AW = PW + $clog2(K) + 1,
+    			DELAY = 5;
     
     reg clk, rst, start;
     reg signed [DW-1:0] x_in;
@@ -51,19 +49,14 @@ module fir_top_tb;
         .data_valid(data_valid)
     );
 
-    // teste 1
+    // teste 1 - Adicionar no monitor
     reg signed [DW-1:0] x_ref [0:K-1];
     reg signed [CW-1:0] coeff_ref [0:K-1];
 
     reg signed [AW-1:0] y_expected;
 
-	// always #5 clk = ~clk; // and initial clk = 1'b0; 
-    initial begin
-        clk = 1'b0;
-        forever #5 clk = ~clk; // Evitar
-    end
-    
-    // - [X] Adicionar um dump e reconfigurar 
+	always #DELAY clk = ~clk;
+ 
 	initial begin
 		
 		// Specify the VCD file name
@@ -71,13 +64,15 @@ module fir_top_tb;
 		$dumpvars(0, fir_top_tb); 
 
 		// Editar
-		$display("|TIME | |"); // formatar saída vísível no terminal
-		$monitor("|%0t | |", $time,); 
+		$display("|TIME |RESET |START |X-IN |DATA-VALID |TAP-INDEX |Y-OUT |"); // formatar saída vísível no terminal
+		$monitor("|%0t |%b |%b |%b |%b |%b |%b |", 
+			$time, rst, start, x_in, data_valid, tap_index, y_out
+		); 
 	end
 
     initial begin
-    
-    	// [ ] Especificar quais testes estão sendo realizados; 
+    	
+    	clk = 1'b0;
         errors = 0;
         rst = 1'b1;
         start = 1'b0;
@@ -85,23 +80,25 @@ module fir_top_tb;
         $display("Starting fir_top Self-Checking Testbench");
 
         // teste de reset, ao mudar de 0 para 1, não deve ter resultado na saida y_out
+        $display("\n--- Teste 1: inicialização com RESET ---");
 
-        #10; 
+        #(DELAY*2); 
         rst = 1'b0;
 
-        #10
+        #(DELAY*2);
         rst = 1'b1;
 
         if (y_out || data_valid) begin
-            $display("ERROR: Saídas incorretas após reset");
+            $display("ERROR: Saídas incorretas após o RESET");
             errors = errors + 1;
         end
         else
-            $display("OK: reset funcionando");
+            $display("OK: RESET funcionando");
 
 
         // teste de funcionamento genérico, entro com valores e comparo com a saída esperada do datapath
-        #20;
+        $display("\n--- Teste 2: Teste de cálculo com entradas aleatórias ---");
+        #(DELAY*4);
         rst = 1'b0;
 
         // Inicializa modelo referência
@@ -128,7 +125,7 @@ module fir_top_tb;
             for (i = 0; i < K; i = i + 1)
                 y_expected = y_expected + x_ref[i] * coeff_ref[i];
 
-            #10;
+            #(DELAY*2);;
 
             // pulso para incializar a maquina de estado na descida do clock para evitar conflito com com a maquina de estado
             @(negedge clk);
@@ -141,8 +138,10 @@ module fir_top_tb;
                 @(negedge clk);
             end
             
-            // debugger
-            $display("Entrada = %0d | Esperado = %0d | Obtido = %0d", x_in, y_expected, y_out);
+            // debugger (apagar)
+            $display("Valor de entrada: %0d | Valor esperado: %0d | Valor obtido: %0d", x_in, y_expected, y_out);
+
+            // esse teste veio de um testbench do datapath e talvez não funcione aqui, verificar
             if (^y_out === 1'bx)
                 $display("y_out contém X no tempo %0t", $time);
 
@@ -157,7 +156,6 @@ module fir_top_tb;
             end
 
         end
-
 
         if (errors == 0)
             $display("\n==== TEST PASSED ====\n");
