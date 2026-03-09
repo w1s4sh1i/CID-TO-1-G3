@@ -36,6 +36,11 @@ module fir_top_tb;
 
     integer i, errors, n;
 
+    reg signed [DW-1:0] x_ref [0:K-1];
+    reg signed [CW-1:0] coeff_ref [0:K-1];
+
+    reg signed [AW-1:0] y_expected;
+
     fir_top #(
         .K(K),
         .DW(DW),
@@ -47,15 +52,12 @@ module fir_top_tb;
         .x_in(x_in),
         .y_out(y_out),
         .data_valid(data_valid)
-    );
+    );    
 
-    // teste 1 - Adicionar no monitor
-    reg signed [DW-1:0] x_ref [0:K-1];
-    reg signed [CW-1:0] coeff_ref [0:K-1];
-
-    reg signed [AW-1:0] y_expected;
-
-	always #DELAY clk = ~clk;
+	initial begin
+        clk = 1'b0;
+        forever #5 clk = ~clk;
+    end
  
 	initial begin
 		
@@ -125,25 +127,18 @@ module fir_top_tb;
             for (i = 0; i < K; i = i + 1)
                 y_expected = y_expected + x_ref[i] * coeff_ref[i];
 
-            #(DELAY*2);;
+            #(DELAY*2);
 
             // pulso para incializar a maquina de estado na descida do clock para evitar conflito com com a maquina de estado
-            @(negedge clk);
+            @(posedge  clk);
             start = 1'b1;
-            @(negedge clk);
+            @(posedge  clk);
             start = 1'b0;
 
             // aguarda a maquina de estado sinalizar o processamento
             while (data_valid != 1'b1) begin
-                @(negedge clk);
+                @(posedge  clk);
             end
-            
-            // debugger (apagar)
-            $display("Valor de entrada: %0d | Valor esperado: %0d | Valor obtido: %0d", x_in, y_expected, y_out);
-
-            // esse teste veio de um testbench do datapath e talvez não funcione aqui, verificar
-            if (^y_out === 1'bx)
-                $display("y_out contém X no tempo %0t", $time);
 
             // Comparação automática
             if (y_out !== y_expected) begin
