@@ -47,8 +47,8 @@ integer k=0;
 		); 
 	end
     
-    // Procedimento de Teste
-    initial begin
+  // Procedimento de Teste
+  initial begin
       
       // Inicialização
       clk = 1'b0; 
@@ -90,23 +90,28 @@ integer k=0;
       $display("-----------------------------------------------------------------------------------------------");
       $display(" Time | shift | in |                             taps_out                             | k");
       $display("-----------------------------------------------------------------------------------------------");
-      // $monitor("%6t |   %1b  |  %1d | %b | %d",
-      //  $time, shift_en, data_in, taps_out, k);
 
       // Teste de Impulso Unitário
       #10 
       shift_en = 1'b1; 
       data_in = 1; 
+      for (k= 0; k < 8; k = k + 1) begin
+
+        $display("%6t |   %1b  |  %1d | %b | %1d | %h",
+                  $time, shift_en, data_in, taps_out, k, taps_out[k  * DATA_WIDTH +: DATA_WIDTH]);
+
+      end
+      $display("-----------------------------------------------------------------------------------------------");
 
 
+      shift_en = 1'b1;
+      data_in = 0; 
 
       // Inserindo dados sequenciais
       repeat (NUM_TAPS + 2) begin
         @(posedge clk);
-        shift_en = 1'b1;
-        data_in = 0; 
+
        for (k= 0; k < 8; k = k + 1) begin
-        // $display("%1d: %b", k, taps_out[k  * DATA_WIDTH +: DATA_WIDTH]);
         $display("%6t |   %1b  |  %1d | %b | %1d | %h",
                   $time, shift_en, data_in, taps_out, k, taps_out[k  * DATA_WIDTH +: DATA_WIDTH]);
 
