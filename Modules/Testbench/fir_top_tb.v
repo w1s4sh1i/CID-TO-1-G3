@@ -19,11 +19,11 @@ TODO
 module fir_top_tb;
 
     localparam 	K = 8,
-    			DW = 8,
-    		 	CW = 8,
-				PW = DW + CW,
-    			AW = PW + $clog2(K) + 1,
-    			DELAY = 5,
+                DW = 8,
+                CW = 8,
+                PW = DW + CW,
+                AW = PW + $clog2(K) + 1,
+                DELAY = 5,
                 FILE_NAME  = "fir_coeffs.mem";
     
     reg clk, rst, start;
@@ -134,12 +134,21 @@ module fir_top_tb;
             @(posedge clk);
             start = 1;
 
+            // pulso para incializar a maquina de estado na descida do clock para evitar conflito com com a maquina de estado
             @(posedge clk);
-            start = 0;
+            start = 1'b1;
+            @(posedge clk);
+            start = 1'b0;
 
-            // aguarda o data valid
-            while (data_valid != 1)
+            // aguarda a maquina de estado sinalizar o processamento
+            while (data_valid != 1'b1) begin
                 @(posedge clk);
+            end
+            
+            // debugger
+            $display("Entrada = %0d | Esperado = %0d | Obtido = %0d", x_in, y_expected, y_out);
+            if (^y_out === 1'bx)
+                $display("y_out contém X no tempo %0t", $time);
 
             if (y_out !== y_expected_d) begin
                 $display("ERRO na amostra %0d", n);
