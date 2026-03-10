@@ -1,42 +1,43 @@
 /*
-/------------------------------------------------
 
-testbench incompleta ainda, mas criei ela para ter um primeiro teste de todo o projeto,
-usei o testbench q está no deprecated como base para passar pelo datapath
-
-no momento ela está recebendo X no y_out,
-preciso verificar se o erro está na no fir_top com alguém do design, porém só de
-achar esse possivel problema já vale a testbench
-
-mas para o primeiro teste, está inicializando a máquina de estado e o datapath
-
-/------------------------------------------------
+teste 1: testa o comportamento do fir com o reset ativado
+teset 2: gera entradas de valores aleatórios para testar o calculo completo do fir, 
+as entradas são valores gerados de forma aleatória, o coeff é carregado do mesmo arquivo usado
+na ROM pq ambos precisam ser os mesmos valores para calcular o expected. Calculado a saída esperada,
+envio o valor de entrada para o fir e comparo o valor na saída com o esperado.
 
 TODO
-
-- [ ] Adicionar um dump e reconfigurar 
+- [x] Change $stop by $finish;
+- [x] Adicionar um dump e reconfigurar exibição de informação 
 - [ ] Adicionar clock por instância;  
+- [ ] Importar configurações e arquivos
+- [ ] Especificar quais testes estão sendo realizados; 
+
 */
 `timescale 1 ns / 1 ps
-
-// [ ] Importar configurações e arquivos
-// [x] Change $stop by $finish;
 
 module fir_top_tb;
 
     localparam 	K = 8,
-    			DW = 8,
-    		 	CW = 8,
-				PW = DW + CW,
-    			AW = PW + $clog2(K) + 1;
+                DW = 8,
+                CW = 8,
+                PW = DW + CW,
+                AW = PW + $clog2(K) + 1,
+                DELAY = 5,
+                FILE_NAME  = "fir_coeffs.mem";
     
     reg clk, rst, start;
     reg signed [DW-1:0] x_in;
     wire data_valid;
-    wire [2:0] tap_index;
     wire signed [DW+CW+$clog2(K):0] y_out;
 
     integer i, errors, n;
+
+    reg signed [DW-1:0] x_ref [0:K-1];
+    reg signed [CW-1:0] coeff_ref [0:K-1];
+
+    reg signed [DW+CW+$clog2(K):0] y_expected;
+    reg signed [DW+CW+$clog2(K):0] y_expected_d;
 
     fir_top #(
         .K(K),
@@ -49,21 +50,22 @@ module fir_top_tb;
         .x_in(x_in),
         .y_out(y_out),
         .data_valid(data_valid)
-    );
+    );    
 
-    // teste 1
-    reg signed [DW-1:0] x_ref [0:K-1];
-    reg signed [CW-1:0] coeff_ref [0:K-1];
-
-    reg signed [AW-1:0] y_expected;
-
-	// always #5 clk = ~clk; // and initial clk = 1'b0; 
-    initial begin
+	initial begin
         clk = 1'b0;
-        forever #5 clk = ~clk; // Evitar
+        forever #5 clk = ~clk;
     end
-    
-    // - [X] Adicionar um dump e reconfigurar 
+
+    initial begin
+        // Inicializa modelo referência igual ao do fir
+        $readmemh(FILE_NAME, coeff_ref);
+
+        // apagar
+        for (i=0; i<K; i=i+1)
+            $display("coeff[%0d] = %0d", i, coeff_ref[i]);
+    end
+ 
 	initial begin
 		
 		// Specify the VCD file name
@@ -71,13 +73,13 @@ module fir_top_tb;
 		$dumpvars(0, fir_top_tb); 
 
 		// Editar
-		$display("|TIME | |"); // formatar saída vísível no terminal
-		$monitor("|%0t | |", $time,); 
+		$display("|TIME |RESET  |START  |X-IN   |DATA-VALID |Y-OUT  |");
+		$monitor("|%0t  |%b     |%b     |%b     |%b         |%b     |", 
+			    $time, rst, start, x_in, data_valid, y_out
+		); 
 	end
 
     initial begin
-    
-    	// [ ] Especificar quais testes estão sendo realizados; 
         errors = 0;
         rst = 1'b1;
         start = 1'b0;
@@ -85,50 +87,52 @@ module fir_top_tb;
         $display("Starting fir_top Self-Checking Testbench");
 
         // teste de reset, ao mudar de 0 para 1, não deve ter resultado na saida y_out
+        $display("\n--- Teste 1: inicialização com RESET ---");
 
-        #10; 
-        rst = 1'b0;
+        repeat(2) @(posedge clk);
+        rst = 0;
 
-        #10
-        rst = 1'b1;
+        repeat(2) @(posedge clk);
+        rst = 1;
 
         if (y_out || data_valid) begin
-            $display("ERROR: Saídas incorretas após reset");
+            $display("ERROR: Saídas incorretas após o RESET");
             errors = errors + 1;
         end
         else
-            $display("OK: reset funcionando");
+            $display("OK: RESET funcionando");
 
-
-        // teste de funcionamento genérico, entro com valores e comparo com a saída esperada do datapath
-        #20;
+        $display("\n--- Teste 2: Teste de cálculo com entradas aleatórias ---");
         rst = 1'b0;
+        repeat(3) @(posedge clk);
 
         // Inicializa modelo referência
         for (i = 0; i < K; i = i + 1)
             x_ref[i] = 0;
-
-        // Inicializa coeff para teste
-        for (i = 0; i < K; i = i + 1)
-            coeff_ref[i] = 1;
+        
+        // preciso dessa variavel pq para o testbench teve uma latencia, fazendo o obtido ficar um passo para tras do esperado
+         y_expected_d = 0;
 
         // Loop de testes
         for (n = 0; n < 10; n = n + 1) begin
 
-            // Gera amostra aleatória
+            // gera amostra aleatória
             x_in = $random % 20;
 
-            // Shift no modelo referência
+            // inicializa referência
             for (i = K-1; i > 0; i = i - 1)
                 x_ref[i] = x_ref[i-1];
-            x_ref[0] = x_in;
 
-            // Calcula resultado esperado
+            x_ref[0] = x_in;
+            
+            // calcula saída esperada
             y_expected = 0;
             for (i = 0; i < K; i = i + 1)
                 y_expected = y_expected + x_ref[i] * coeff_ref[i];
 
-            #10;
+            // pulso de start
+            @(posedge clk);
+            start = 1;
 
             // pulso para incializar a maquina de estado na descida do clock para evitar conflito com com a maquina de estado
             @(posedge clk);
@@ -146,18 +150,19 @@ module fir_top_tb;
             if (^y_out === 1'bx)
                 $display("y_out contém X no tempo %0t", $time);
 
-            // Comparação automática
-            if (y_out !== y_expected) begin
+            if (y_out !== y_expected_d) begin
                 $display("ERRO na amostra %0d", n);
-                $display("Esperado = %0d | Obtido = %0d", y_expected, y_out);
+                $display("Esperado = %0d | Obtido = %0d", y_expected_d, y_out);
                 errors = errors + 1;
             end
             else begin
                 $display("OK amostra %0d | Resultado = %0d", n, y_out);
             end
 
-        end
+            // passo extra para tratar a latencia
+            y_expected_d = y_expected;
 
+        end
 
         if (errors == 0)
             $display("\n==== TEST PASSED ====\n");

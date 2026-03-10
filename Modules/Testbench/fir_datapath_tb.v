@@ -39,15 +39,7 @@ module fir_datapath_tb;
         .y_out(y_out)
     );
 
-    // =====================================================
-    // CLOCK
-    // =====================================================
-
     always #5 clk = ~clk;
-
-    // =====================================================
-    // VCD / Monitor
-    // =====================================================
 
     initial begin
         
@@ -58,11 +50,7 @@ module fir_datapath_tb;
         $monitor("|%0t | %0d | %0d |", 
             $time, y_out, expected);
     end
-
-    // =====================================================
-    // Modelo referência (scoreboard)
-    // =====================================================
-
+  
     reg signed [DW-1:0] samples [0:K-1];
     reg signed [CW-1:0] coeffs  [0:K-1];
     reg signed [AW-1:0] expected;
@@ -75,11 +63,8 @@ module fir_datapath_tb;
         for (i = 0; i < K; i = i + 1)
             samples[i] = 0;
     end
-
-    // =====================================================
+  
     // SCOREBOARD
-    // =====================================================
-
     task automatic scoreboard_calc;
 
         integer j;
@@ -110,11 +95,8 @@ module fir_datapath_tb;
 
     endtask
 
-
-    // =====================================================
     // DRIVER
-    // =====================================================
-
+ 
     task automatic driver(input signed [DW-1:0] sample);
     begin
 
@@ -150,11 +132,7 @@ module fir_datapath_tb;
     end
     endtask
 
-
-    // =====================================================
     // MONITOR
-    // =====================================================
-
     task automatic monitor;
     begin
 
@@ -168,11 +146,7 @@ module fir_datapath_tb;
     end
     endtask
 
-
-    // =====================================================
     // SEQUENCE
-    // =====================================================
-
     task automatic send(input signed [DW-1:0] sample);
     begin
         driver(sample);
@@ -180,11 +154,7 @@ module fir_datapath_tb;
     end
     endtask
 
-
-    // =====================================================
     // TESTES
-    // =====================================================
-
     initial begin
 
         clk = 0;
