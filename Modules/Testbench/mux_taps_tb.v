@@ -3,6 +3,8 @@ TODO
 
 - [x] Adicionar um dump e reconfigurar 
 - [ ] Adicionar clock por instância;  
+- [ ] Importar configurações e arquivos
+
 */
 
 /*
@@ -18,13 +20,10 @@ Teste 3: rodo um for para comparar todos os valores do mux com suas respectivas 
 
 `timescale 1 ns / 1 ps
 
-// [ ] Importar configurações e arquivos
-// [x] Change $stop by $finish;
-
 module mux_taps_tb;
 
     localparam	DATA_WIDTH = 8,
-    			NUM_TAPS   = 8,
+    			      NUM_TAPS   = 8,
                 DELAY      = 5;
 
     reg  [NUM_TAPS*DATA_WIDTH-1:0] taps_in;
@@ -66,6 +65,7 @@ module mux_taps_tb;
     initial begin
 
         taps_in = 0;
+        
         for (i = 0; i < NUM_TAPS; i = i + 1) begin
             taps_in[i*DATA_WIDTH +: DATA_WIDTH] = tap_mem[i];
         end

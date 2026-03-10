@@ -1,5 +1,4 @@
 /*
-
 teste 1: testa o comportamento do fir com o reset ativado
 teset 2: gera entradas de valores aleatórios para testar o calculo completo do fir, 
 as entradas são valores gerados de forma aleatória, o coeff é carregado do mesmo arquivo usado
@@ -11,9 +10,8 @@ TODO
 - [x] Adicionar um dump e reconfigurar exibição de informação 
 - [ ] Adicionar clock por instância;  
 - [ ] Importar configurações e arquivos
-- [ ] Especificar quais testes estão sendo realizados; 
-
 */
+
 `timescale 1 ns / 1 ps
 
 module fir_top_tb;
@@ -24,7 +22,7 @@ module fir_top_tb;
                 PW = DW + CW,
                 AW = PW + $clog2(K) + 1,
                 DELAY = 5,
-                FILE_NAME  = "fir_coeffs.mem";
+                FILE_NAME  = "fir_coeffs.mem"; // Analisar arquivo
     
     reg clk, rst, start;
     reg signed [DW-1:0] x_in;
@@ -52,10 +50,7 @@ module fir_top_tb;
         .data_valid(data_valid)
     );    
 
-	initial begin
-        clk = 1'b0;
-        forever #5 clk = ~clk;
-    end
+    always #DELAY clk = ~clk;
 
     initial begin
         // Inicializa modelo referência igual ao do fir
@@ -72,14 +67,17 @@ module fir_top_tb;
 		$dumpfile("CIDI-SD192-fir-top.vcd"); 
 		$dumpvars(0, fir_top_tb); 
 
-		// Editar
-		$display("|TIME |RESET  |START  |X-IN   |DATA-VALID |Y-OUT  |");
-		$monitor("|%0t  |%b     |%b     |%b     |%b         |%b     |", 
-			    $time, rst, start, x_in, data_valid, y_out
+		$display("|TIME |RESET |START |X-IN |DATA-VALID |TAP-INDEX |Y-OUT |"); // formatar saída vísível no terminal
+		$monitor("|%0t |%b |%b |%b |%b |%b |%b |", 
+			$time, rst, start, x_in, data_valid, tap_index, y_out
 		); 
 	end
 
     initial begin
+      
+    	clk = 1'b0;
+    	
+    	// [ ] Especificar quais testes estão sendo realizados; 
         errors = 0;
         rst = 1'b1;
         start = 1'b0;
@@ -102,7 +100,7 @@ module fir_top_tb;
         else
             $display("OK: RESET funcionando");
 
-        $display("\n--- Teste 2: Teste de cálculo com entradas aleatórias ---");
+        $display("\n--- Teste 2: Teste de cálculo com entradas aleatórias ---"); // Analisar remoção
         rst = 1'b0;
         repeat(3) @(posedge clk);
 

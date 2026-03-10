@@ -6,9 +6,7 @@ TODO
 - [ ] Especificar quais testes estão sendo realizados; 
 - [ ] Adicionar clock por instância;  
 - [ ] Importar configurações e arquivos
-*/
 
-/*
 Descrição dos testes:
 teste 1: ativo o RESET para verificar se a maquina de estado inicializa as saidas com 0, ou seja está parada
 teste 2: ativo a maquina de estado com o sinal 0, para verificar se ela continua parada como deveria
@@ -31,8 +29,7 @@ module fir_control_tb;
     wire shift_en, acc_clear, mac_en, data_valid;
     wire [$clog2(K)-1:0] tap_index;
 
-    integer i;
-    integer errors;
+    integer i, errors;
 
     fir_control #(
         .K(K) 
@@ -47,11 +44,9 @@ module fir_control_tb;
         .tap_index(tap_index)
     );
 
-    initial begin
-        clk = 1'b0;
-        forever #5 clk = ~clk;
-    end
-
+	always #DELAY clk = ~clk;
+    
+    // - [X] Adicionar um dump e reconfigurar exibição de informação 
 	initial begin
 		
 		// Specify the VCD file name
@@ -59,14 +54,17 @@ module fir_control_tb;
 		$dumpvars(0, fir_control_tb); 
 
 		// Terminal view
-		$display("|TIME |RESET |START |SHIFT-EN |ACC CLEAR |MAC-EN |DATA-VALID |TAP-INDEX |");
+		$display("|TIME |RESET |START |SHIFT-EN |ACC CLEAR |MAC-EN |DATA-VALID |TAP-INDEX |"); // formatar saída vísível no terminal
 		$monitor("|%0t |%b |%b |%b |%b |%b |%b |%b |", 
 			  $time, rst, start, shift_en, acc_clear, mac_en, data_valid, tap_index
 		); 
 	end
 
     initial begin
-    
+    	
+    	clk = 1'b0; 
+ 
+    	// [ ] Especificar quais testes estão sendo realizados; 
         errors = 1'b0;
         rst = 1'b1;
         start = 1'b0;
