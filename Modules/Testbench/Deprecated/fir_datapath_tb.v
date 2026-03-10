@@ -1,6 +1,15 @@
-`timescale 1ns/1ps
+/*
+TODO
 
-module tb_FIR_datapath;
+- [ ] Adicionar um dump e reconfigurar 
+- [ ] Adicionar clock por instância;  
+*/
+`timescale 1 ns / 1 ps
+
+// [ ] Importar configurações e arquivos
+// [x] Change $stop by $finish;
+
+module fir_datapath_tb;
 
     // ==========================
     // Parâmetros
@@ -30,7 +39,7 @@ module tb_FIR_datapath;
     // ==========================
     // Instância do DUT
     // ==========================
-    FIR_datapath #(K, DW, CW) DUT (
+    fir_datapath #(K, DW, CW) DUT (
         .clk(clk),
         .rst(rst),
         .shift_en(shift_en),
@@ -46,6 +55,21 @@ module tb_FIR_datapath;
     // ==========================
     always #5 clk = ~clk;
 
+	 // - [X] Adicionar um dump e reconfigurar 
+	initial begin
+		
+		// Specify the VCD file name
+		$dumpfile("CIDI-SD192-fir-controll.vcd"); 
+		$dumpvars(0, fir_control_tb); 
+
+		// Editar
+		$display("|TIME | |"); // formatar saída vísível no terminal
+		$monitor("|%0t | |", 
+			  $time, 
+		); 
+	end
+	
+	
     // ==========================
     // Modelo de referência
     // ==========================
@@ -56,7 +80,7 @@ module tb_FIR_datapath;
     reg signed [AW-1:0] y_expected;
 
     initial begin
-        $readmemh("coeffs.mem", coeff_ref);
+        $readmemh("coeffs.mem", coeff_ref); /// ???
     end
 
     // ==========================
@@ -135,7 +159,7 @@ module tb_FIR_datapath;
         $display("🎉 TESTE FINALIZADO COM SUCESSO");
         $display("=================================");
 
-        $stop;
+        $finish;
     end
 
 endmodule

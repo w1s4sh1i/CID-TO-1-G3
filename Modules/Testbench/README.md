@@ -6,8 +6,13 @@
 
 ```
 .
-├── main_file
-│   └── sub_file
+└── main_file
+	├──	sub_file
+	├──	sub_file
+	├──	sub_file
+	├──	sub_file
+	└── sub_file
+		
 
 ```
 
