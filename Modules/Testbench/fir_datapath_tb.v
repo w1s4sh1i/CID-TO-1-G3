@@ -15,7 +15,6 @@ module FIR_datapath_tb;
     integer pass_count = 0;
     integer fail_count = 0;
 
-    // Instancia do DUT
     FIR_datapath #(
         .K(K),
         .DW(DW),
@@ -34,7 +33,6 @@ module FIR_datapath_tb;
 
     always #5 clk = ~clk; 
 
-    // Modelo para o scoreboard
     reg signed [DW-1:0] samples [0:K-1];
     reg signed [CW-1:0] coeffs  [0:K-1];
     reg signed [AW-1:0] expected;
@@ -68,11 +66,11 @@ module FIR_datapath_tb;
         expected = 0;
 
         if (!legenda_impressa) begin
-            $display("TAP -> índice do tap (posição no shift register)");
-            $display("SAMPLE -> valor da amostra nesse tap");
-            $display("COEFF -> coeficiente da ROM (do arquivo coeffs.mem)");
-            $display("MULT -> resultado da multiplicacao: SAMPLE * COEFF");
-            $display("SOMA -> soma acumulada até esse tap\n");
+            $display("TAP -> posição no shift register)");
+            $display("SAMPLE -> valor da amostra");
+            $display("COEFF -> coeficiente do filtro");
+            $display("MULT -> SAMPLE * COEFF");
+            $display("SOMA -> soma acumulada");
             legenda_impressa = 1;
         end
             $display(" TAP | SAMPLE | COEFF |   MULT   | SOMA PARCIAL ");
@@ -89,54 +87,50 @@ module FIR_datapath_tb;
         end
     endtask
 
-// Driver: aplica uma nova amostra ao DUT e controla sinais
+// Driver
 task automatic driver(input signed [DW-1:0] sample);
     begin
-        // Atualiza o modelo de referência (sempre que send é chamado)
+        
         for (i = K-1; i > 0; i = i - 1)
-            samples[i] = samples[i-1];
+        samples[i] = samples[i-1];
         samples[0] = sample;
 
-        // Calcula o valor esperado
+        
         scoreboard_calc();
-
-        // Aplica amostra ao DUT
+        
         @(posedge clk);
-        shift_en  = 1;        // habilita shift register
-        acc_clear = 1;        // limpa acumulador
-        start     = 1;        // sinal de início
+        shift_en  = 1;        
+        acc_clear = 1;        
+        start     = 1;        
         x_in      = sample;
 
-        // Desativa sinais após um ciclo
+        
         @(posedge clk);
         shift_en  = 0;
         acc_clear = 0;
         start     = 0;
-
-        // Percorre todos os taps
+        
         for (i = 0; i < K; i = i + 1) begin
             @(posedge clk);
             mac_en = 1;
             tap_en = 1;
         end
-
-        // Finaliza operação
+        
         @(posedge clk);
         mac_en = 0;
         tap_en = 0;
     end
 endtask
 
-    // Monitor: compara saida real com esperada
     task automatic monitor;
         begin
             @(posedge clk);
             if (y_out !== expected) begin
-                $display("ERRO -> esperado=%0d obtido=%0d", expected, y_out);
+                $display("Erro -> esperado=%0d obtido=%0d", expected, y_out);
                 fail_count = fail_count + 1;
             end 
             else begin
-                $display("Resultado OK");
+                $display("Resultado ok");
                 pass_count = pass_count + 1;
             end
         end
@@ -146,10 +140,8 @@ endtask
 // Send: aplica uma amostra completa ao DUT - chama o driver para inserir a amostra - chama o monitor para verificar o resultado
     task automatic send(input signed [DW-1:0] sample);
         begin
-            //Chamando o driver, ele atualiza o modelo de referencia - calcula o resultado esperado - aplica a amostra ao DUT - percorre todos os taps multiplicando e acumulando
             driver(sample);
 
-            //Chamando o monitor - compara a saída real do DUT (y_out) com o valor esperado calculado pelo scoreboard - exibe "Resultado OK" ou "ERRO" no terminal
             monitor();
         end
     endtask
@@ -167,52 +159,50 @@ endtask
 
         #20 rst = 0;
 
-        $display("\n--- Teste 1: Impulso unitário ---");
+        $display("--- Teste com impulsos unitarios ---");
         send(1);
         repeat(K) send(0);
 
-        $display("\n--- Teste 2: Uma sequencia crescente ---");
+        $display("--- Teste com uma sequencia crescente ---");
         send(1);
         send(2);
         send(3);
         send(4);
 
-        $display("\n--- Teste 3: Valores negativos ---");
+        $display("--- Teste com números negativos ---");
         send(-1);
         send(-2);
         send(-3);
         send(-4);
 
-$display("\n--- Teste 4: Shift sem enable ---");
-@(posedge clk);
-shift_en = 0;
-x_in = 5;   @(posedge clk);
-x_in = 10;  @(posedge clk);
-x_in = -7;  @(posedge clk);
+        $display("--- Teste sem habilitar shift ---");
+        @(posedge clk);
+        shift_en = 0;
+        x_in = 5;   @(posedge clk);
+        x_in = 10;  @(posedge clk);
+        x_in = -7;  @(posedge clk);
 
-@(posedge clk);
-monitor();
+        @(posedge clk);
+        monitor();
 
 
-        $display("\n--- Teste 5: Multiplicadores extremos ---");
+        $display("--- Teste com valores grandes ---");
         send(127);   
         send(-128);  
 
-        $display("\n--- Teste 6: Uma soma grande (overflow check) ---");
+        $display("--- Teste para overflow ---");
         repeat(10) send(100);
 
-        $display("\n--- Teste 7: Random test ---");
+        $display("--- Teste com valores aleatorios ---");
         repeat(20) begin
         send($random);
         end
 
         #100;
 
-        $display("\n---------------------------------");
-        $display("Resultado final dos testes: ");
-        $display("PASS: %0d", pass_count);
-        $display("FAIL: %0d", fail_count);
-        $display("---------------------------------\n");
+        $display("Resumo final dos testes: ");
+        $display("Passou: %0d", pass_count);
+        $display("Falhou: %0d", fail_count);
         $finish;
     end
 
