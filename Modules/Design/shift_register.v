@@ -32,14 +32,14 @@
 // Há um deslocamento da "linha" inteira a cada ciclo de clock
 
 module shift_register #(
-    parameter DATA_WIDTH = 8,
-    parameter NUM_TAPS   = 8
+    parameter   DATA_WIDTH = 8,
+                NUM_TAPS   = 8
 )(
-    input  wire                                  clk,
-    input  wire                                  rst,
-    input  wire                                  shift_en,
-    input  wire signed [DATA_WIDTH-1:0]          data_in,
-    output wire signed [NUM_TAPS*DATA_WIDTH-1:0] taps_out
+    input                                    clk,
+    input                                    rst,
+    input                                    shift_en,
+    input  signed [DATA_WIDTH-1:0]          data_in,
+    output signed [NUM_TAPS*DATA_WIDTH-1:0] taps_out
 );
 
     // Registradores internos: reg_mem[0] = x[n] (mais recente)
@@ -70,3 +70,4 @@ module shift_register #(
     endgenerate
 
 endmodule
+
