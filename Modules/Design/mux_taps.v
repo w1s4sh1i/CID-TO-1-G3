@@ -15,11 +15,11 @@
 // =============================================================================
 
 module mux_taps #(
-    parameter DATA_WIDTH = 8,
-    parameter NUM_TAPS   = 8
+    parameter   DATA_WIDTH = 8,
+                NUM_TAPS   = 8
 )(
-    input  wire [NUM_TAPS*DATA_WIDTH-1:0] taps_in,
-    input  wire [$clog2(NUM_TAPS)-1:0]    tap_index,
+    input    [NUM_TAPS*DATA_WIDTH-1:0] taps_in,
+    input    [$clog2(NUM_TAPS)-1:0]    tap_index,
     output reg  signed [DATA_WIDTH-1:0]   data_out
 );
 
@@ -29,3 +29,4 @@ module mux_taps #(
     end
 
 endmodule
+
